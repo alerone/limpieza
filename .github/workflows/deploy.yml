@@ -16,9 +16,12 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'  # Puedes usar una sola versión para el despliegue
+          node-version: '18.19'  # Puedes usar una sola versión para el despliegue
           cache: 'npm'
           
+      - name: Check node version
+        run: node --version
+
       - name: Install dependencies
         run: npm install
         
