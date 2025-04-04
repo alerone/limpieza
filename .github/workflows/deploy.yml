@@ -1,36 +1,28 @@
-name: Node.js CI and Deploy
+name: Deploy to GitHub Pages
+
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.19.0'  # Puedes usar una sola versión para el despliegue
-          cache: 'npm'
-          
-      - name: Check node version
-        run: node --version
+          node-version: '18'
 
-      - name: Install dependencies
-        run: npm install
-        
+      - run: npm install
+
       - name: Build project
-        run: npm run build 
-      
+        run: npm run build
+
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          folder: dist  # Asume que Parcel genera los archivos en la carpeta 'dist'
-          branch: gh-pages  # Esto creará automáticamente la rama gh-pages
-          clean: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
