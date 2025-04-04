@@ -1,4 +1,5 @@
 import { UserModel, CleaningModel } from './models.js'
+import firebase from 'firebase/auth'
 
 const users = [
     new UserModel('Álvaro'),
