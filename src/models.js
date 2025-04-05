@@ -61,3 +61,24 @@ export class CleaningModel {
         return weekNumber
     }
 }
+/**@param {Date} date */
+export function getWeekOfYear() {
+    const date = new Date()
+    // Creamos una copia de la fecha y la ajustamos a medianoche
+    const target = new Date(date.valueOf())
+    target.setHours(0, 0, 0, 0)
+
+    // ISO-8601: el lunes es el primer día de la semana.
+    // Calculamos el jueves de la semana actual
+    const dayNr = (date.getDay() + 6) % 7
+    target.setDate(target.getDate() - dayNr + 3)
+
+    // Obtenemos el primer jueves del año
+    const firstThursday = new Date(target.getFullYear(), 0, 4)
+    const firstDayNr = (firstThursday.getDay() + 6) % 7
+    firstThursday.setDate(firstThursday.getDate() - firstDayNr + 3)
+
+    // Calculamos la diferencia en semanas
+    const weekNumber = 1 + Math.round((target - firstThursday) / (7 * 24 * 3600 * 1000))
+    return weekNumber
+}
