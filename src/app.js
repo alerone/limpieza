@@ -37,7 +37,7 @@ const usuarios = {
     usuario3: { nombre: 'Alex', done: false },
 }
 
-setInterval(await firebaseService.initWeek(usuarios), 5 * 60 * 1000)
+setInterval(firebaseService.initWeek(usuarios), 5 * 60 * 1000)
 
 alvaroContainer.addEventListener('click', async () => {
     await firebaseService.setDone('usuario1')
