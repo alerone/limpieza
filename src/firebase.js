@@ -1,6 +1,16 @@
 import { initializeApp } from 'firebase/app'
 import { getDatabase } from 'firebase/database'
-import { get, orderByKey, limitToLast, query, update, ref, set, push } from 'firebase/database'
+import {
+    get,
+    orderByKey,
+    onValue,
+    limitToLast,
+    query,
+    update,
+    ref,
+    set,
+    push,
+} from 'firebase/database'
 import { getWeekOfYear } from './models.js'
 
 const firebaseConfig = {
@@ -17,12 +27,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const db = getDatabase(app)
 
-class UserDto {
-    constructor(name) {
-        this.name = name
-        this.done = false
-    }
-}
 export class FirebaseService {
     constructor() {
         this.app = app
@@ -65,7 +69,18 @@ export class FirebaseService {
         }
     }
 
-    async marcarUltimoUsuarioComoHecho(usuarioKey) {
+    async listenToUser(userId, callback) {
+        const idRegistro = await obtenerUltimoIdRegistro()
+        const userRef = ref(db, `piso/${idRegistro}/usuarios/${userId}`)
+        console.log(userRef)
+
+        onValue(userRef, (snapshot) => {
+            const data = snapshot.val().done
+            callback(data)
+        })
+    }
+
+    async setDone(usuarioKey) {
         const idRegistro = await obtenerUltimoIdRegistro()
 
         if (!idRegistro) {
