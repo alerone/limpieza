@@ -40,16 +40,16 @@ const usuarios = {
 setInterval(firebaseService.initWeek(usuarios), 5 * 60 * 1000)
 
 alvaroContainer.addEventListener('click', async () => {
-    await firebaseService.setDone('usuario1')
+    await firebaseService.toggleDone('usuario1')
 })
 joanContainer.addEventListener('click', async () => {
-    await firebaseService.setDone('usuario2')
+    await firebaseService.toggleDone('usuario2')
 })
 alexContainer.addEventListener('click', async () => {
-    await firebaseService.setDone('usuario3')
+    await firebaseService.toggleDone('usuario3')
 })
 rubiusContainer.addEventListener('click', async () => {
-    await firebaseService.setDone('usuario0')
+    await firebaseService.toggleDone('usuario0')
 })
 
 firebaseService.listenToUser('usuario1', (val) => {

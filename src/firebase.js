@@ -80,7 +80,7 @@ export class FirebaseService {
         })
     }
 
-    async setDone(usuarioKey) {
+    async toggleDone(usuarioKey) {
         const idRegistro = await obtenerUltimoIdRegistro()
 
         if (!idRegistro) {
@@ -89,11 +89,17 @@ export class FirebaseService {
         }
 
         const usuarioRef = ref(db, `piso/${idRegistro}/usuarios/${usuarioKey}`)
-        await update(usuarioRef, { done: true })
+        const snapshot = await get(usuarioRef)
 
-        console.log(
-            `✅ Usuario ${usuarioKey} marcado como hecho en el último registro (${idRegistro})`
-        )
+        if (!snapshot.exists()) {
+            console.log(`❌ El usuario ${usuarioKey} no existe en el último registro.`)
+            return
+        }
+
+        const usuario = snapshot.val()
+        const nuevoEstado = !usuario.done
+
+        await update(usuarioRef, { done: nuevoEstado })
     }
 }
 
