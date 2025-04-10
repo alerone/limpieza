@@ -101,6 +101,7 @@ export class FirebaseService {
         const nuevoEstado = !usuario.done
 
         const hoy = getDayString()
+        console.log(hoy)
         const nuevaFecha = nuevoEstado ? hoy : 'not done'
 
         await update(usuarioRef, { done: nuevoEstado, fecha: nuevaFecha })
