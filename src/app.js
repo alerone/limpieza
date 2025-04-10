@@ -31,10 +31,10 @@ const joanBorder = document.querySelector('#joanBorder')
 const tasks = cleaningModel.getTaskOrder()
 
 const usuarios = {
-    usuario0: { nombre: 'Rubiu', done: false },
-    usuario1: { nombre: 'Álvaro', done: false },
-    usuario2: { nombre: 'Joan', done: false },
-    usuario3: { nombre: 'Alex', done: false },
+    usuario0: { nombre: 'Rubiu', done: false, fecha: 'not done' },
+    usuario1: { nombre: 'Álvaro', done: false, fecha: 'not done' },
+    usuario2: { nombre: 'Joan', done: false, fecha: 'not done' },
+    usuario3: { nombre: 'Alex', done: false, fecha: 'not done' },
 }
 
 setInterval(firebaseService.initWeek(usuarios), 5 * 60 * 1000)

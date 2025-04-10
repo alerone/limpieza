@@ -12,6 +12,7 @@ import {
     push,
 } from 'firebase/database'
 import { getWeekOfYear } from './models.js'
+import { getDayString } from './utils.js'
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -99,7 +100,10 @@ export class FirebaseService {
         const usuario = snapshot.val()
         const nuevoEstado = !usuario.done
 
-        await update(usuarioRef, { done: nuevoEstado })
+        const hoy = getDayString()
+        const nuevaFecha = nuevoEstado ? hoy : 'not done'
+
+        await update(usuarioRef, { done: nuevoEstado, fecha: nuevaFecha })
     }
 }
 

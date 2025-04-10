@@ -12,9 +12,7 @@
         <link href="/src/index.css" rel="stylesheet" />
         <style>
             body {
-                background-color: #000;
                 margin: 0px;
-                overflow: hidden;
             }
 
             .exo2-font {
@@ -28,10 +26,42 @@
                 font-weight: 600;
                 font-style: normal;
             }
+            .wave path {
+                animation: waveMove 10s ease-in-out infinite;
+            }
+
+            @keyframes waveMove {
+                0% {
+                    transform: translateX(0);
+                }
+                50% {
+                    transform: translateX(-20px);
+                }
+                100% {
+                    transform: translateX(0);
+                }
+            }
         </style>
     </head>
-    <body class="overflow-y-auto bg-red">
-        <div class="w-screen mb-4 flex flex-col items-center justify-center mt-32 p-2">
+    <body class="relative overflow-y-auto flex items-center  justify-center overflow-x-hidden">
+        <div
+            class="fixed top-0 left-0 w-screen h-full -z-10 bg-gradient-to-br from-indigo-950 via-gray-900 to-indigo-950"
+        >
+            <svg
+                class="absolute bottom-0 w-full wave "
+                viewBox="0 0 1440 320"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                    fill="#ffffff10"
+                    fill-opacity="1"
+                    d="M0,64L48,96C96,128,192,192,288,186.7C384,181,480,107,576,90.7C672,75,768,117,864,133.3C960,149,1056,139,1152,144C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                ></path>
+            </svg>
+        </div>
+        <main
+            class="w-screen mb-4 flex flex-col items-center justify-center bg-transparent mt-32 p-2"
+        >
             <h1
                 id="diaLabel"
                 class="lato-font text-6xl xl:text-4xl font-bold mb-2 text-center px-2 rounded-lg bg-white"
@@ -44,11 +74,10 @@
             >
                 SEMANA:34
             </h1>
-        </div>
         <div class="flex flex-col xl:flex-row xl:items-center xl:justify-center w-full gap-6 p-4">
             <div
                 id="alvaroBorder"
-                class="p-1.5 w-9/12 xl:w-1/5 mx-auto rounded-lg bg-gradient-to-r"
+                class="p-1.5 w-9/12 xl:w-1/5 mx-auto rounded-lg bg-gradient-to-r shadow-xl transition-shadow duration-300 hover:shadow-2xl"
             >
                 <div id="alvaroCard" class="bg-white shadow-lg rounded-lg overflow-hidden p-6">
                     <div class="flex flex-row items-center mb-10">
@@ -152,7 +181,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
         <!-- Scripts de biblioteca -->
         <script type="module" src="./src/app.js"></script>
     </body>
