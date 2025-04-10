@@ -47,13 +47,11 @@ export class FirebaseService {
         const ultimaEntradaQuery = query(fechasRef, orderByKey(), limitToLast(1))
 
         const snapshot = await get(ultimaEntradaQuery)
-        console.log('snapshot', snapshot)
 
         let debeGuardar = true
 
         if (snapshot.exists()) {
             const ultimoDato = Object.values(snapshot.val())[0]
-            console.log(ultimoDato)
 
             if (ultimoDato.year == year && ultimoDato.week == week) {
                 debeGuardar = false
@@ -73,7 +71,6 @@ export class FirebaseService {
     async listenToUser(userId, callback) {
         const idRegistro = await obtenerUltimoIdRegistro()
         const userRef = ref(db, `piso/${idRegistro}/usuarios/${userId}`)
-        console.log(userRef)
 
         onValue(userRef, (snapshot) => {
             const data = snapshot.val().done
@@ -85,7 +82,7 @@ export class FirebaseService {
         const idRegistro = await obtenerUltimoIdRegistro()
 
         if (!idRegistro) {
-            console.log('❌ No hay registros en la base de datos.')
+            console.error('❌ No hay registros en la base de datos.')
             return
         }
 
@@ -93,7 +90,7 @@ export class FirebaseService {
         const snapshot = await get(usuarioRef)
 
         if (!snapshot.exists()) {
-            console.log(`❌ El usuario ${usuarioKey} no existe en el último registro.`)
+            console.error(`❌ El usuario ${usuarioKey} no existe en el último registro.`)
             return
         }
 
@@ -101,7 +98,6 @@ export class FirebaseService {
         const nuevoEstado = !usuario.done
 
         const hoy = getDayString()
-        console.log(hoy)
         const nuevaFecha = nuevoEstado ? hoy : 'not done'
 
         await update(usuarioRef, { done: nuevoEstado, fecha: nuevaFecha })
