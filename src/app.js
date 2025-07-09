@@ -1,4 +1,5 @@
-import { auth, getUser, handleLogout } from './auth.js'
+import { auth, handleLogout } from './auth.js'
+import { getDayString, getWeekBounds } from './utils.js'
 import { UserModel, CleaningModel } from './models.js'
 import { FirebaseService } from './firebase.js'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -12,33 +13,33 @@ onAuthStateChanged(auth, (user) => {
 })
 
 
-const users = [
-    new UserModel('Álvaro', "lopezalvarezalvaro1@gmail.com"),
-    new UserModel('Rubén'),
-    new UserModel('Joan'),
-    new UserModel('Álex'),
-]
+const users = {
+    "alvaro": new UserModel('Álvaro', "lopezalvarezalvaro1@gmail.com"),
+    "ruben": new UserModel('Rubén'),
+    "victor": new UserModel('Víctor'),
+    "alex": new UserModel('Álex'),
+}
 
 const cleaningModel = new CleaningModel(users)
 const firebaseService = new FirebaseService()
 
 const alvaroTask = document.querySelector('#alvaroTask')
 const alexTask = document.querySelector('#alexTask')
-const joanTask = document.querySelector('#joanTask')
+const victorTask = document.querySelector('#victorTask')
 const rubiuTask = document.querySelector('#rubiuTask')
 
 const dayLabel = document.querySelector('#diaLabel')
 const semanaLabel = document.querySelector('#semanaLabel')
 
 const alvaroContainer = document.querySelector('#alvaroCard')
-const joanContainer = document.querySelector('#joanCard')
+const victorContainer = document.querySelector('#victorCard')
 const alexContainer = document.querySelector('#alexCard')
 const rubiusContainer = document.querySelector('#rubiusCard')
 
 const rubiusBorder = document.querySelector('#rubiusBorder')
 const alvaroBorder = document.querySelector('#alvaroBorder')
 const alexBorder = document.querySelector('#alexBorder')
-const joanBorder = document.querySelector('#joanBorder')
+const victorBorder = document.querySelector('#victorBorder')
 
 const logoutBtn = document.querySelector('#logoutBtn')
 
@@ -47,59 +48,54 @@ logoutBtn.addEventListener("click", handleLogout)
 const tasks = cleaningModel.getTaskOrder()
 
 const usuarios = {
-    usuario0: { nombre: 'Rubiu', done: false, fecha: 'not done' },
-    usuario1: { nombre: 'Álvaro', done: false, fecha: 'not done' },
-    usuario2: { nombre: 'Joan', done: false, fecha: 'not done' },
-    usuario3: { nombre: 'Alex', done: false, fecha: 'not done' },
+    rubius: { nombre: 'Rubiu', done: false, fecha: 'not done' },
+    alvaro: { nombre: 'Álvaro', done: false, fecha: 'not done' },
+    victor: { nombre: 'Víctor', done: false, fecha: 'not done' },
+    alex: { nombre: 'Alex', done: false, fecha: 'not done' },
 }
 
-setInterval(firebaseService.initWeek(usuarios), 5 * 60 * 1000)
+firebaseService.initWeek(usuarios)
+setInterval(() => firebaseService.initWeek(usuarios), 5 * 60 * 1000)
 
 alvaroContainer.addEventListener('click', async () => {
-    if (currentUser.email == users[0].email)
-        await firebaseService.toggleDone('usuario1')
+    if (currentUser.email == users["alvaro"].email)
+        await firebaseService.toggleDone('alvaro')
 })
-joanContainer.addEventListener('click', async () => {
-    if (currentUser.email == users[2].email)
-        await firebaseService.toggleDone('usuario2')
+victorContainer.addEventListener('click', async () => {
+    if (currentUser.email == users["victor"].email)
+        await firebaseService.toggleDone('victor')
 })
 alexContainer.addEventListener('click', async () => {
-    if (currentUser.email == users[3].email)
-        await firebaseService.toggleDone('usuario3')
+    if (currentUser.email == users["alex"].email)
+        await firebaseService.toggleDone('alex')
 })
 rubiusContainer.addEventListener('click', async () => {
-    if (currentUser.email == users[1].email)
-        await firebaseService.toggleDone('usuario0')
+    if (currentUser.email == users["ruben"].email)
+        await firebaseService.toggleDone('rubius')
 })
 
-firebaseService.listenToUser('usuario1', (val) => {
+firebaseService.listenToUser('alvaro', (val) => {
     changeBorderColor(alvaroBorder, val)
 })
-firebaseService.listenToUser('usuario0', (val) => {
+firebaseService.listenToUser('rubius', (val) => {
     changeBorderColor(rubiusBorder, val)
 })
-firebaseService.listenToUser('usuario2', (val) => {
-    changeBorderColor(joanBorder, val)
+firebaseService.listenToUser('victor', (val) => {
+    changeBorderColor(victorBorder, val)
 })
-firebaseService.listenToUser('usuario3', (val) => {
+firebaseService.listenToUser('alex', (val) => {
     changeBorderColor(alexBorder, val)
 })
 
 alvaroTask.textContent = tasks[1]
 alexTask.textContent = tasks[3]
-joanTask.textContent = tasks[2]
+victorTask.textContent = tasks[2]
 rubiuTask.textContent = tasks[0]
 
+// Date labels
 const today = new Date()
-
-const day = String(today.getDate()).padStart(2, '0')
-const month = String(today.getMonth() + 1).padStart(2, '0')
-const year = today.getFullYear()
-
-dayLabel.textContent = `DIA: ${day}/${month}/${year}`
-const semana = cleaningModel.getWeekOfYear()
-
-semanaLabel.textContent = `SEMANA: ${semana}`
+dayLabel.textContent = `DIA: ${getDayString(today)}`
+semanaLabel.innerHTML = `SEMANA:<br>${getWeekBounds(today)}`
 
 function changeBorderColor(element, isDone) {
     if (isDone) {

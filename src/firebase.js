@@ -12,7 +12,7 @@ import {
     push,
 } from 'firebase/database'
 import { getWeekOfYear } from './models.js'
-import { getDayString } from './utils.js'
+import { getDayString, getPreciseDateString } from './utils.js'
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -73,8 +73,12 @@ export class FirebaseService {
         const userRef = ref(db, `piso/${idRegistro}/usuarios/${userId}`)
 
         onValue(userRef, (snapshot) => {
-            const data = snapshot.val().done
-            callback(data)
+            if (snapshot !== null) {
+                const data = snapshot.val().done
+                callback(data)
+            } else {
+
+            }
         })
     }
 
@@ -97,7 +101,7 @@ export class FirebaseService {
         const usuario = snapshot.val()
         const nuevoEstado = !usuario.done
 
-        const hoy = getDayString()
+        const hoy = getPreciseDateString()
         const nuevaFecha = nuevoEstado ? hoy : 'not done'
 
         await update(usuarioRef, { done: nuevoEstado, fecha: nuevaFecha })
