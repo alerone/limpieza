@@ -12,7 +12,7 @@ import {
     push,
 } from 'firebase/database'
 import { getWeekOfYear } from './models.js'
-import { getDayString, getPreciseDateString } from './utils.js'
+import { getPreciseDateString, getWeekBounds } from './utils.js'
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -40,8 +40,10 @@ export class FirebaseService {
     }
 
     async initWeek(usuarios) {
-        const week = getWeekOfYear()
-        const year = new Date().getFullYear()
+        const weekNumber = getWeekOfYear()
+        const today = new Date()
+        const week = getWeekBounds(today)
+        const year = today.getFullYear()
 
         const fechasRef = ref(db, this.path)
         const ultimaEntradaQuery = query(fechasRef, orderByKey(), limitToLast(1))
@@ -53,7 +55,7 @@ export class FirebaseService {
         if (snapshot.exists()) {
             const ultimoDato = Object.values(snapshot.val())[0]
 
-            if (ultimoDato.year == year && ultimoDato.week == week) {
+            if (ultimoDato.year == year && ultimoDato.week == weekNumber) {
                 debeGuardar = false
             }
         }
@@ -62,6 +64,7 @@ export class FirebaseService {
             const nuevoRegistro = push(fechasRef)
             await set(nuevoRegistro, {
                 year: year,
+                weekNumber: weekNumber,
                 week: week,
                 usuarios: usuarios,
             })
