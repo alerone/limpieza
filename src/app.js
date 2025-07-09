@@ -1,12 +1,24 @@
+import { auth, getUser, handleLogout } from './auth.js'
 import { UserModel, CleaningModel } from './models.js'
 import { FirebaseService } from './firebase.js'
+import { onAuthStateChanged } from 'firebase/auth'
+let currentUser = undefined
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "index.html"
+    } else {
+        currentUser = user
+    }
+})
+
 
 const users = [
-    new UserModel('Álvaro'),
+    new UserModel('Álvaro', "lopezalvarezalvaro1@gmail.com"),
     new UserModel('Rubén'),
     new UserModel('Joan'),
     new UserModel('Álex'),
 ]
+
 const cleaningModel = new CleaningModel(users)
 const firebaseService = new FirebaseService()
 
@@ -28,6 +40,10 @@ const alvaroBorder = document.querySelector('#alvaroBorder')
 const alexBorder = document.querySelector('#alexBorder')
 const joanBorder = document.querySelector('#joanBorder')
 
+const logoutBtn = document.querySelector('#logoutBtn')
+
+logoutBtn.addEventListener("click", handleLogout)
+
 const tasks = cleaningModel.getTaskOrder()
 
 const usuarios = {
@@ -40,16 +56,20 @@ const usuarios = {
 setInterval(firebaseService.initWeek(usuarios), 5 * 60 * 1000)
 
 alvaroContainer.addEventListener('click', async () => {
-    await firebaseService.toggleDone('usuario1')
+    if (currentUser.email == users[0].email)
+        await firebaseService.toggleDone('usuario1')
 })
 joanContainer.addEventListener('click', async () => {
-    await firebaseService.toggleDone('usuario2')
+    if (currentUser.email == users[2].email)
+        await firebaseService.toggleDone('usuario2')
 })
 alexContainer.addEventListener('click', async () => {
-    await firebaseService.toggleDone('usuario3')
+    if (currentUser.email == users[3].email)
+        await firebaseService.toggleDone('usuario3')
 })
 rubiusContainer.addEventListener('click', async () => {
-    await firebaseService.toggleDone('usuario0')
+    if (currentUser.email == users[1].email)
+        await firebaseService.toggleDone('usuario0')
 })
 
 firebaseService.listenToUser('usuario1', (val) => {
