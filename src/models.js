@@ -1,6 +1,7 @@
 export class UserModel {
-    constructor(name, birthdate) {
+    constructor(name, email, birthdate) {
         this.name = name
+        this.email = email
         this.birthdate = birthdate
     }
 }
@@ -39,7 +40,6 @@ export class CleaningModel {
                 return baseList
         }
     }
-    /**@param {Date} date */
     getWeekOfYear() {
         const date = new Date()
         // Creamos una copia de la fecha y la ajustamos a medianoche
@@ -61,7 +61,6 @@ export class CleaningModel {
         return weekNumber
     }
 }
-/**@param {Date} date */
 export function getWeekOfYear() {
     const date = new Date()
     // Creamos una copia de la fecha y la ajustamos a medianoche
