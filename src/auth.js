@@ -3,14 +3,16 @@ import { app } from "./firebase.js"
 
 export const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
+provider.setCustomParameters({
+    prompt: "select_account"
+})
 
 export async function handleLogin() {
     try {
         const result = await signInWithPopup(auth, provider)
         const user = result.user
-        console.log("User Info:", user.displayName, user.email, user.photoURL);
         localStorage.setItem("user", JSON.stringify(user))
-        window.location.href = "dashboard.html"
+        window.location.href = "/dashboard"
     } catch (error) {
         console.error("Error logging in", error)
     }
@@ -19,13 +21,13 @@ export async function handleLogin() {
 export async function handleLogout() {
     await signOut(auth)
     localStorage.removeItem("user")
-    window.location.href = "index.html"
+    window.location.href = "/"
 }
 
 export function getUser() {
     onAuthStateChanged(auth, (user) => {
         if (!user) {
-            window.location.href = "index.html"
+            window.location.href = "/"
         } else {
             return user
         }
