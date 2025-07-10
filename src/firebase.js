@@ -75,12 +75,14 @@ export class FirebaseService {
         const idRegistro = await obtenerUltimoIdRegistro()
         const userRef = ref(db, `piso/${idRegistro}/usuarios/${userId}`)
 
+
         onValue(userRef, (snapshot) => {
-            if (snapshot !== null) {
+            if (snapshot) {
                 const data = snapshot.val().done
                 callback(data)
             } else {
-
+                console.error(`no snapshot for ${userId} found`)
+                this.initWeek()
             }
         })
     }
