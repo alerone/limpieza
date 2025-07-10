@@ -81,7 +81,7 @@ rubiusContainer.addEventListener('click', async () => {
         await firebaseService.toggleDone('rubius')
 })
 
-await firebaseService.listenToUser('alvaro', (val) => {
+firebaseService.listenToUser('alvaro', (val) => {
     changeBorderColor(alvaroBorder, val)
 })
 firebaseService.listenToUser('rubius', (val) => {
