@@ -55,7 +55,7 @@ export class FirebaseService {
         if (snapshot.exists()) {
             const ultimoDato = Object.values(snapshot.val())[0]
 
-            if (ultimoDato.year == year && ultimoDato.week == weekNumber) {
+            if (ultimoDato.year == year && ultimoDato.weekNumber == weekNumber) {
                 debeGuardar = false
             }
         }
