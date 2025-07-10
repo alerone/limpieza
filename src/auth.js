@@ -12,7 +12,7 @@ export async function handleLogin() {
         const result = await signInWithPopup(auth, provider)
         const user = result.user
         localStorage.setItem("user", JSON.stringify(user))
-        window.location.href = "dashboard.html"
+        window.location.href = "./dashboard.html"
     } catch (error) {
         console.error("Error logging in", error)
     }
