@@ -3,21 +3,28 @@ import { getDayString, getWeekBounds } from './utils.js'
 import { UserModel, CleaningModel } from './models.js'
 import { FirebaseService } from './firebase.js'
 import { onAuthStateChanged } from 'firebase/auth'
+
 let currentUser = undefined
 onAuthStateChanged(auth, (user) => {
     if (!user) {
-        window.location.href = "index.html"
+        window.location.href = "/"
     } else {
         currentUser = user
     }
 })
 
+const emails = {
+    alvaro: import.meta.env.VITE_EMAIL_ALVARO,
+    rubius: import.meta.env.VITE_EMAIL_RUBIUS,
+    victor: import.meta.env.VITE_EMAIL_VICTOR,
+    alex: import.meta.env.VITE_EMAIL_ALEX,
+}
 
 const users = {
-    "alvaro": new UserModel('Álvaro', "lopezalvarezalvaro1@gmail.com"),
-    "ruben": new UserModel('Rubén'),
-    "victor": new UserModel('Víctor'),
-    "alex": new UserModel('Álex'),
+    "alvaro": new UserModel('Álvaro', emails.alvaro),
+    "ruben": new UserModel('Rubén', emails.rubius),
+    "victor": new UserModel('Víctor', emails.victor),
+    "alex": new UserModel('Álex', emails.alex),
 }
 
 const cleaningModel = new CleaningModel(users)
@@ -74,7 +81,7 @@ rubiusContainer.addEventListener('click', async () => {
         await firebaseService.toggleDone('rubius')
 })
 
-firebaseService.listenToUser('alvaro', (val) => {
+await firebaseService.listenToUser('alvaro', (val) => {
     changeBorderColor(alvaroBorder, val)
 })
 firebaseService.listenToUser('rubius', (val) => {

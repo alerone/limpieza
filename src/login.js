@@ -6,7 +6,7 @@ const loginButton = document.querySelector('#loginBtn')
 loginButton.addEventListener("click", handleLogin)
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        window.location.href = "dashboard.html"
+        window.location.href = "/dashboard"
     }
 })
 
