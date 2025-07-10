@@ -21,13 +21,13 @@ export async function handleLogin() {
 export async function handleLogout() {
     await signOut(auth)
     localStorage.removeItem("user")
-    window.location.href = "/"
+    window.location.href = "/index.html"
 }
 
 export function getUser() {
     onAuthStateChanged(auth, (user) => {
         if (!user) {
-            window.location.href = "/"
+            window.location.href = "/index.html"
         } else {
             return user
         }
