@@ -12,7 +12,7 @@ export async function handleLogin() {
         const result = await signInWithPopup(auth, provider)
         const user = result.user
         localStorage.setItem("user", JSON.stringify(user))
-        window.location.href = "/limpieza/login.html"
+        window.location.href = "/limpieza/dashboard.html"
     } catch (error) {
         console.error("Error logging in", error)
     }
@@ -21,13 +21,13 @@ export async function handleLogin() {
 export async function handleLogout() {
     await signOut(auth)
     localStorage.removeItem("user")
-    window.location.href = "/limpieza/login.html"
+    window.location.href = "/limpieza/index.html"
 }
 
 export function getUser() {
     onAuthStateChanged(auth, (user) => {
         if (!user) {
-            window.location.href = "limpieza/login.html"
+            window.location.href = "limpieza/index.html"
         } else {
             return user
         }
