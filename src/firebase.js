@@ -12,7 +12,7 @@ import {
     push,
 } from 'firebase/database'
 import { getWeekOfYear } from './models.js'
-import { getPreciseDateString, getWeekBounds } from './utils.js'
+import { getMonday, getPreciseDateString, getWeekBounds } from './utils.js'
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -26,7 +26,7 @@ const firebaseConfig = {
 }
 
 export const app = initializeApp(firebaseConfig)
-const db = getDatabase(app)
+export const db = getDatabase(app)
 
 export class FirebaseService {
     constructor() {
@@ -41,9 +41,9 @@ export class FirebaseService {
 
     async initWeek(usuarios) {
         const weekNumber = getWeekOfYear()
-        const today = new Date()
-        const week = getWeekBounds(today)
-        const year = today.getFullYear()
+        const monday = getMonday()
+        const week = getWeekBounds(monday)
+        const year = monday.getFullYear()
 
         const fechasRef = ref(db, this.path)
         const ultimaEntradaQuery = query(fechasRef, orderByKey(), limitToLast(1))

@@ -29,3 +29,13 @@ export function getWeekBounds(date) {
     sunday.setDate(monday.getDate() + 6);
     return `${getDayString(monday)} - ${getDayString(sunday)}`
 }
+
+export function getMonday() {
+    const today = new Date();
+    const day = today.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+
+    const monday = new Date(current);
+    monday.setDate(current.getDate() + diffToMonday);
+    return monday
+}
