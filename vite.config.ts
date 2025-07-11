@@ -7,6 +7,7 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
+                login: resolve(__dirname, 'index.html'),
                 dashboard: resolve(__dirname, 'dashboard.html')
             }
         }
