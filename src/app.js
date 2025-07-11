@@ -7,7 +7,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 let currentUser = undefined
 onAuthStateChanged(auth, (user) => {
     if (!user) {
-        window.location.href = "/limpieza/login.html"
+        window.location.href = "/limpieza/"
     } else {
         currentUser = user
     }
