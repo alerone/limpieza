@@ -20,6 +20,8 @@ const emails = {
     alex: import.meta.env.VITE_EMAIL_ALEX,
 }
 
+console.log("alvaro", emails.alvaro)
+
 const users = {
     "alvaro": new UserModel('Álvaro', emails.alvaro),
     "ruben": new UserModel('Rubén', emails.rubius),
@@ -65,7 +67,8 @@ firebaseService.initWeek(usuarios)
 setInterval(() => firebaseService.initWeek(usuarios), 5 * 60 * 1000)
 
 alvaroContainer.addEventListener('click', async () => {
-    await firebaseService.toggleDone('alvaro')
+    if (currentUser.email == users["alvaro"].email)
+        await firebaseService.toggleDone('alvaro')
 })
 victorContainer.addEventListener('click', async () => {
     if (currentUser.email == users["victor"].email)
