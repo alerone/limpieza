@@ -2,8 +2,6 @@ name: Node.js CI and Deploy
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
@@ -32,6 +30,12 @@ jobs:
           echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> .env
           echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env
           echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> .env
+
+          echo "VITE_FIREBASE_DB_URL=${{ secrets.VITE_FIREBASE_DB_URL }}" >> .env
+          echo "VITE_EMAIL_ALVARO=${{ secrets.VITE_EMAIL_ALVARO }}" >> .env
+          echo "VITE_EMAIL_RUBIUS= $ {{ secrets.VITE_EMAIL_RUBIUS }}" >> .env
+          echo "VITE_EMAIL_VICTOR= $ {{ secrets.VITE_EMAIL_VICTOR }}" >> .env
+          echo "VITE_EMAIL_ALEX= $ {{ secrets.VITE_EMAIL_ALEX }}" >> .env
         
       - name: Build project
         run:  npm run build
