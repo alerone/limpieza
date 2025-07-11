@@ -24,7 +24,6 @@ export class CleaningModel {
     getTaskOrder() {
         const week = this.getWeekOfYear()
         const mod = week % 4
-        console.log(mod)
 
         const baseList = this.tasks
         switch (mod) {

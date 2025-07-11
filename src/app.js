@@ -20,8 +20,6 @@ const emails = {
     alex: import.meta.env.VITE_EMAIL_ALEX,
 }
 
-console.log("alvaro", emails.alvaro)
-
 const users = {
     "alvaro": new UserModel('Álvaro', emails.alvaro),
     "ruben": new UserModel('Rubén', emails.rubius),
