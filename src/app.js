@@ -65,6 +65,7 @@ firebaseService.initWeek(usuarios)
 setInterval(() => firebaseService.initWeek(usuarios), 5 * 60 * 1000)
 
 alvaroContainer.addEventListener('click', async () => {
+    console.log(currentUser.email, users["alvaro"].email)
     if (currentUser.email == users["alvaro"].email)
         await firebaseService.toggleDone('alvaro')
 })
