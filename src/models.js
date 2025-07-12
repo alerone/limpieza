@@ -1,8 +1,7 @@
 export class UserModel {
-    constructor(name, email, birthdate) {
+    constructor(name, email) {
         this.name = name
         this.email = email
-        this.birthdate = birthdate
         this.history = []
     }
 }

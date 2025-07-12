@@ -3,6 +3,7 @@ import { getDayString, getWeekBounds } from './utils.js'
 import { UserModel, CleaningModel } from './models.js'
 import { FirebaseService } from './firebase.js'
 import { onAuthStateChanged } from 'firebase/auth'
+import { UsersService } from './users.js'
 
 let currentUser = undefined
 onAuthStateChanged(auth, (user) => {
@@ -22,13 +23,14 @@ const emails = {
 
 const users = {
     "alvaro": new UserModel('Álvaro', emails.alvaro),
-    "ruben": new UserModel('Rubén', emails.rubius),
+    "rubius": new UserModel('Rubén', emails.rubius),
     "victor": new UserModel('Víctor', emails.victor),
     "alex": new UserModel('Álex', emails.alex),
 }
 
 const cleaningModel = new CleaningModel(users)
 const firebaseService = new FirebaseService()
+const userService = new UsersService()
 
 const alvaroTask = document.querySelector('#alvaroTask')
 const alexTask = document.querySelector('#alexTask')
@@ -77,21 +79,25 @@ alexContainer.addEventListener('click', async () => {
         await firebaseService.toggleDone('alex')
 })
 rubiusContainer.addEventListener('click', async () => {
-    if (currentUser.email == users["ruben"].email)
+    if (currentUser.email == users["rubius"].email)
         await firebaseService.toggleDone('rubius')
 })
 
-firebaseService.listenToUser('alvaro', (val) => {
-    changeBorderColor(alvaroBorder, val)
+firebaseService.listenToUser('alvaro', async (isDone) => {
+    await pushToHistory(users["alvaro"].email, isDone)
+    changeBorderColor(alvaroBorder, isDone)
 })
-firebaseService.listenToUser('rubius', (val) => {
-    changeBorderColor(rubiusBorder, val)
+firebaseService.listenToUser('rubius', async (isDone) => {
+    await pushToHistory(users["rubius"].email, isDone)
+    changeBorderColor(rubiusBorder, isDone)
 })
-firebaseService.listenToUser('victor', (val) => {
-    changeBorderColor(victorBorder, val)
+firebaseService.listenToUser('victor', async (isDone) => {
+    await pushToHistory(users["victor"].email, isDone)
+    changeBorderColor(victorBorder, isDone)
 })
-firebaseService.listenToUser('alex', (val) => {
-    changeBorderColor(alexBorder, val)
+firebaseService.listenToUser('alex', async (isDone) => {
+    await pushToHistory(users["alex"].email, isDone)
+    changeBorderColor(alexBorder, isDone)
 })
 
 alvaroTask.textContent = tasks[1]
@@ -103,6 +109,14 @@ rubiuTask.textContent = tasks[0]
 const today = new Date()
 dayLabel.textContent = `DIA: ${getDayString(today)}`
 semanaLabel.innerHTML = `SEMANA:<br>${getWeekBounds(today)}`
+
+async function pushToHistory(email, isDone) {
+    if (!isDone) {
+        await userService.AddTaskNotDone(email)
+    } else {
+        await userService.RemoveTaskNotDone(email)
+    }
+}
 
 function changeBorderColor(element, isDone) {
     if (isDone) {

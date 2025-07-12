@@ -35,7 +35,7 @@ export function getMonday() {
     const day = today.getDay();
     const diffToMonday = day === 0 ? -6 : 1 - day;
 
-    const monday = new Date(current);
-    monday.setDate(current.getDate() + diffToMonday);
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diffToMonday);
     return monday
 }
