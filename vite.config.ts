@@ -8,7 +8,8 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 login: resolve(__dirname, 'index.html'),
-                dashboard: resolve(__dirname, 'dashboard.html')
+                dashboard: resolve(__dirname, 'dashboard.html'),
+                profile: resolve(__dirname, 'profile.html')
             }
         }
     }

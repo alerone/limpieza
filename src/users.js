@@ -1,11 +1,10 @@
-import { db } from './firebase.js'
+import { db } from "./firebase.js"
 import {
     get,
     orderByKey,
     onValue,
     limitToLast,
     query,
-    update,
     ref,
     set,
     push,
@@ -13,7 +12,21 @@ import {
 } from 'firebase/database'
 import { getWeekBounds } from './utils.js'
 
-export class UsersService {
+const emails = {
+    alvaro: import.meta.env.VITE_EMAIL_ALVARO,
+    rubius: import.meta.env.VITE_EMAIL_RUBIUS,
+    victor: import.meta.env.VITE_EMAIL_VICTOR,
+    alex: import.meta.env.VITE_EMAIL_ALEX,
+}
+
+const users = {
+    rubius: { name: 'Rubiu' },
+    alvaro: { name: 'Álvaro' },
+    victor: { name: 'Víctor' },
+    alex: { name: 'Alex' },
+}
+
+class UsersService {
     constructor() {
         this.db = db
         this.path = 'users/'
@@ -30,10 +43,9 @@ export class UsersService {
         }
     }
 
-    async AddTaskNotDone(email) {
-        const rootEmail = cleanEmail(email)
-        const historyRef = ref(db, this.path + rootEmail + `/history`)
-        const currentWeek = getWeekBounds(new Date())
+    async addTaskNotDone(email) {
+        const historyRef = ref(db, this.#getHistoryPath(email))
+        const currentWeek = getWeekBounds()
         const lastHistory = query(historyRef, orderByKey(), limitToLast(1))
         const snapshot = await get(lastHistory)
 
@@ -49,10 +61,10 @@ export class UsersService {
         await push(historyRef, currentWeek)
     }
 
-    async RemoveTaskNotDone(email) {
-        const cleaned = cleanEmail(email)
-        const historyRef = ref(db, this.path + cleaned + `/history`)
-        const currentWeek = getWeekBounds(new Date())
+    async removeTaskNotDone(email) {
+        const historyPath = this.#getHistoryPath(email)
+        const historyRef = ref(db, historyPath)
+        const currentWeek = getWeekBounds()
         const lastHistory = query(historyRef, orderByKey(), limitToLast(1))
 
         const snapshot = await get(lastHistory)
@@ -61,12 +73,55 @@ export class UsersService {
         const data = snapshot.val()
         const lastKey = Object.keys(data)[0]
         if (data[lastKey] != currentWeek) return
-        const lastHistoryRef = ref(db, `${this.path}${cleaned}/history/${lastKey}`)
+        const lastHistoryRef = ref(db, `${historyPath}/${lastKey}`)
 
         await remove(lastHistoryRef)
+    }
+
+    async listenToUserHistory(email = "lopezalvarezalvaro1@gmail.com", callback) {
+        const historyRef = ref(db, this.#getHistoryPath(email))
+
+        onValue(historyRef, (snapshot) => {
+            const data = snapshot.val()
+            if (data) {
+                callback(Object.values(data))
+            }
+        })
+    }
+
+    #getHistoryPath(email) {
+        return this.path + cleanEmail(email) + "/history"
     }
 }
 
 function cleanEmail(email) {
     return email.split("@")[0]
+}
+
+export const userService = new UsersService()
+
+export function getUserProfileImage(email) {
+    switch (email) {
+        case emails.alex:
+            return "./images/alex.jpg"
+        case emails.alvaro:
+            return "./images/me.jpg"
+        case emails.rubius:
+            return "./images/rubiu.jpg"
+        case emails.victor:
+            return "./images/victor.jpg"
+    }
+}
+
+export function getUserName(email) {
+    switch (email) {
+        case emails.alex:
+            return users.alex.name
+        case emails.alvaro:
+            return users.alvaro.name
+        case emails.rubius:
+            return users.rubius.name
+        case emails.victor:
+            return users.victor.name
+    }
 }

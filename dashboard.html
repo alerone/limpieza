@@ -12,6 +12,7 @@
         <link href="/src/index.css" rel="stylesheet" />
         <link href="/src/fonts.css" rel="stylesheet" />
         <link href="/src/background.css" rel="stylesheet" />
+        <link href="/src/loader.css" rel="stylesheet" />
         <style>
             body {
                 margin: 0px;
@@ -19,12 +20,17 @@
         </style>
     </head>
 <body class="relative overflow-y-auto flex items-center justify-center overflow-x-hidden">
-        <button
-            id="logoutBtn"
-            class="fixed hover:cursor-pointer top-6 right-6 z-50 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg transition-all"
-        >
-            Cerrar sesión
-        </button>
+        <div id="loading-page" class="fixed inset-0 z-50  flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-950  to-gray-900">
+            <!-- Fondo wave -->
+            <h1 class="lg:text-6xl text-4xl font-bold text-gray-100 mb-6 exo2-font">Loading</h1>
+            <span class="green loader"></span>
+        </div>
+        <img
+            id="profile-image"
+            class="fixed hover:cursor-pointer top-10 right-6 z-30 xl:w-25 w-36 xl:h-25 h-36 mr-4 rounded-full transition-all"
+            src="./images/me.jpg"
+            alt=""
+        />
         <div
             class="fixed  top-0 left-0 w-screen h-screen -z-10 bg-gradient-to-br from-indigo-950 via-gray-900 to-indigo-950"
         >
@@ -41,11 +47,11 @@
             </svg>
         </div>
         <main
-            class="w-screen mb-4 flex flex-col items-center justify-center bg-transparent mt-32 p-2"
+            class="w-screen mb-4 flex flex-col items-center justify-center bg-transparent mt-48 p-2"
         >
             <h1
                 id="diaLabel"
-                class="mb-4 lato-font text-6xl xl:text-4xl font-bold mb-2 text-center px-2 rounded-lg bg-white"
+                class="mb-4 lato-font text-6xl xl:text-4xl font-bold mt-10 text-center px-2 rounded-lg bg-white"
             >
                 DIA: 24/07/2030
             </h1>
@@ -55,7 +61,7 @@
             >
                 SEMANA:34
             </h1>
-        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-center w-full gap-6 p-4">
+        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-center w-full mt-8 gap-6 p-4">
             <div
                 id="alvaroBorder"
                 class="p-1.5 hover:cursor-pointer w-9/12 xl:w-1/5 mx-auto rounded-lg bg-gradient-to-r shadow-xl transition-shadow duration-300 hover:shadow-2xl"
@@ -64,7 +70,7 @@
                     <div class="flex flex-row items-center mb-10">
                         <img
                             id="alvaroImg"
-                            class="xl:w-20 w-40 xl:h-20 h-40 mr-4 rounded-full border-4 border-blue-500"
+                            class="xl:w-20 w-30 xl:h-20 h-30 mr-4 rounded-full border-4 border-blue-500"
                             src="./images/me.jpg"
                             alt=""
                         />
@@ -89,7 +95,7 @@
                     <div class="flex flex-row items-center mb-10">
                         <img
                             id="alexImg"
-                            class="xl:w-20 w-40 xl:h-20 h-40 mr-4 rounded-full border-4 border-emerald-500"
+                            class="xl:w-20 w-30 xl:h-20 h-30 mr-4 rounded-full border-4 border-emerald-500"
                             src="./images/alex.jpg"
                             alt=""
                         />
@@ -114,7 +120,7 @@
                     <div class="flex flex-row items-center mb-10">
                         <img
                             id="victorImg"
-                            class="xl:w-20 w-40 xl:h-20 h-40 mr-4 rounded-full border-4 border-indigo-500"
+                            class="xl:w-20 w-30 xl:h-20 h-30 mr-4 rounded-full border-4 border-indigo-500"
                             src="./images/victor.jpg"
                             alt=""
                         />
@@ -142,7 +148,7 @@
                     <div class="flex flex-row items-center mb-10">
                         <img
                             id="rubiuImg"
-                            class="xl:w-20 w-40 xl:h-20 h-40 mr-4 rounded-full border-4 border-amber-300"
+                            class="xl:w-20 w-30 xl:h-20 h-30 mr-4 rounded-full border-4 border-amber-300"
                             src="./images/rubiu.jpg"
                             alt=""
                         />

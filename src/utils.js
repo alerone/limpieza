@@ -17,7 +17,7 @@ export function getDayString(date) {
     return `${dia}/${mes}/${año}`
 }
 
-export function getWeekBounds(date) {
+export function getWeekBounds(date = new Date()) {
     const current = new Date(date);
     const day = current.getDay();
     const diffToMonday = day === 0 ? -6 : 1 - day;

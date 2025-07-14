@@ -3,7 +3,28 @@ import { getDayString, getWeekBounds } from './utils.js'
 import { UserModel, CleaningModel } from './models.js'
 import { FirebaseService } from './firebase.js'
 import { onAuthStateChanged } from 'firebase/auth'
-import { UsersService } from './users.js'
+import { getUserProfileImage, userService } from './users.js'
+
+const loadingPage = document.querySelector("#loading-page")
+const alvaroTask = document.querySelector('#alvaroTask')
+const alexTask = document.querySelector('#alexTask')
+const victorTask = document.querySelector('#victorTask')
+const rubiuTask = document.querySelector('#rubiuTask')
+
+const dayLabel = document.querySelector('#diaLabel')
+const semanaLabel = document.querySelector('#semanaLabel')
+
+const alvaroContainer = document.querySelector('#alvaroCard')
+const victorContainer = document.querySelector('#victorCard')
+const alexContainer = document.querySelector('#alexCard')
+const rubiusContainer = document.querySelector('#rubiusCard')
+
+const rubiusBorder = document.querySelector('#rubiusBorder')
+const alvaroBorder = document.querySelector('#alvaroBorder')
+const alexBorder = document.querySelector('#alexBorder')
+const victorBorder = document.querySelector('#victorBorder')
+
+const profileBtn = document.querySelector('#profile-image')
 
 let currentUser = undefined
 onAuthStateChanged(auth, (user) => {
@@ -11,6 +32,8 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = "/limpieza/"
     } else {
         currentUser = user
+        loadingPage.classList.add("hidden")
+        profileBtn.src = getUserProfileImage(user.email)
     }
 })
 
@@ -30,29 +53,11 @@ const users = {
 
 const cleaningModel = new CleaningModel(users)
 const firebaseService = new FirebaseService()
-const userService = new UsersService()
 
-const alvaroTask = document.querySelector('#alvaroTask')
-const alexTask = document.querySelector('#alexTask')
-const victorTask = document.querySelector('#victorTask')
-const rubiuTask = document.querySelector('#rubiuTask')
 
-const dayLabel = document.querySelector('#diaLabel')
-const semanaLabel = document.querySelector('#semanaLabel')
-
-const alvaroContainer = document.querySelector('#alvaroCard')
-const victorContainer = document.querySelector('#victorCard')
-const alexContainer = document.querySelector('#alexCard')
-const rubiusContainer = document.querySelector('#rubiusCard')
-
-const rubiusBorder = document.querySelector('#rubiusBorder')
-const alvaroBorder = document.querySelector('#alvaroBorder')
-const alexBorder = document.querySelector('#alexBorder')
-const victorBorder = document.querySelector('#victorBorder')
-
-const logoutBtn = document.querySelector('#logoutBtn')
-
-logoutBtn.addEventListener("click", handleLogout)
+profileBtn.addEventListener("click", () => {
+    window.location.href = "/limpieza/profile.html"
+})
 
 const tasks = cleaningModel.getTaskOrder()
 
@@ -112,9 +117,9 @@ semanaLabel.innerHTML = `SEMANA:<br>${getWeekBounds(today)}`
 
 async function pushToHistory(email, isDone) {
     if (!isDone) {
-        await userService.AddTaskNotDone(email)
+        await userService.addTaskNotDone(email)
     } else {
-        await userService.RemoveTaskNotDone(email)
+        await userService.removeTaskNotDone(email)
     }
 }
 

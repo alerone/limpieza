@@ -1,13 +1,9 @@
 .exo2-font {
-    font-family: 'Exo 2', serif;
+    font-family: 'Exo 2';
     font-optical-sizing: auto;
-    font-weight: 600;
-    font-style: italic;
 }
 .lato-font {
-    font-family: 'Lato', serif;
-    font-weight: 600;
-    font-style: normal;
+    font-family: 'Lato';
 }
 .wave path {
     animation: waveMove 10s ease-in-out infinite;
