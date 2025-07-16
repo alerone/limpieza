@@ -76,15 +76,15 @@ alvaroContainer.addEventListener('click', async () => {
         await firebaseService.toggleDone('alvaro')
 })
 victorContainer.addEventListener('click', async () => {
-    if (currentUser.email == users["victor"].email)
+    if (currentUser.email == users["victor"].email || isAdmin(currentUser.email))
         await firebaseService.toggleDone('victor')
 })
 alexContainer.addEventListener('click', async () => {
-    if (currentUser.email == users["alex"].email)
+    if (currentUser.email == users["alex"].email || isAdmin(currentUser.email))
         await firebaseService.toggleDone('alex')
 })
 rubiusContainer.addEventListener('click', async () => {
-    if (currentUser.email == users["rubius"].email)
+    if (currentUser.email == users["rubius"].email || isAdmin(currentUser.email))
         await firebaseService.toggleDone('rubius')
 })
 
@@ -135,4 +135,8 @@ function changeBorderColor(element, isDone) {
         element.classList.add('from-red-500')
         element.classList.add('to-red-700')
     }
+}
+
+function isAdmin(email) {
+    return email == emails.alvaro
 }
