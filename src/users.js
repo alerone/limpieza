@@ -56,9 +56,9 @@ class UsersService {
 
         const data = snapshot.val()
         const lastKey = Object.keys(data)[0]
-        if (data[lastKey] == currentWeek) return
 
-        await push(historyRef, currentWeek)
+        if (data[lastKey] !== currentWeek)
+            await push(historyRef, currentWeek)
     }
 
     async removeTaskNotDone(email) {
