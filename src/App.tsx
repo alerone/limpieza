@@ -8,7 +8,7 @@ import { ProfilePage } from './pages/Profile'
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/limpieza">
             <AuthProvider>
                 <Routes>
                     <Route path="login" element={<LoginPage />} />

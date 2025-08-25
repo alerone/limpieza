@@ -14,7 +14,7 @@ export function ProfilePage() {
     const history = useHistory(user.email)
 
     const handleBack = () => {
-        navigate("/", { replace: true })
+        navigate(-1)
     }
 
     return (
