@@ -6,12 +6,15 @@ import { getUserModelByEmail, type User } from "../types/User"
 import { UserHistory } from "../components/UserHistory"
 import { useHistory } from "../hooks/useHistory"
 import { auth } from "../auth/auth"
+import { useTitle } from "../hooks/useTitle"
 export function ProfilePage() {
     const { user } = useAuth()
     const navigate = useNavigate()
 
     const userInstance: User = getUserModelByEmail(user.email)
     const history = useHistory(user.email)
+
+    useTitle("Perfil - Tareas de Limpieza")
 
     const handleBack = () => {
         navigate(-1)

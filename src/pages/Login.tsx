@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { LoginButton } from "../components/Buttons"
 import { auth } from "../auth/auth"
 import { useAuth } from "../auth/AuthProvider"
+import { useTitle } from "../hooks/useTitle"
 
 function LoginPage() {
     const navigate = useNavigate()
@@ -9,6 +10,8 @@ function LoginPage() {
     const { user } = useAuth()
 
     const from = location.state?.from?.pathname || "/"
+
+    useTitle("Iniciar Sesión - Tareas de Limpieza")
 
     async function handleLogin() {
         await auth.login(() => { console.log(from) })

@@ -6,11 +6,15 @@ import { toggleDone } from "../firebase/weekHistory"
 import { Icon } from "../components/Icon"
 import { useAuth } from "../auth/AuthProvider"
 import { useNavigate } from "react-router-dom"
+import { useTitle } from "../hooks/useTitle"
 
 function Dashboard() {
     const users = useGetUsersInfo()
     const navigate = useNavigate()
     const { user } = useAuth()
+
+    useTitle("Home - Tareas de Limpieza")
+
 
     const usersList: User[] = Object.values(users)
     return (
