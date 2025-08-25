@@ -39,7 +39,7 @@ export const baseUsers: Record<string, User> = {
     },
     "victor": {
         id: "1a7c9359-3c3e-4e21-87ca-77890359cc1f",
-        name: "victor",
+        name: "Víctor",
         username: "victor",
         email: emails.victor,
         image: "./images/victor.jpg",
