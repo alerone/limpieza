@@ -1,5 +1,6 @@
 import { signOut, getAuth, GoogleAuthProvider, signInWithPopup, type User, signInWithRedirect, getRedirectResult } from 'firebase/auth'
 import { app } from '../firebase/firebase'
+import { isIOSSafari } from '../utils/isIOS'
 // import { isIOSSafari } from '../utils/isIOS'
 
 
@@ -11,14 +12,13 @@ provider.setCustomParameters({
 
 export const auth = {
     async login(callback: (user: User) => void) {
-        if (true) {
+        if (isIOSSafari()) {
             try {
                 await signInWithRedirect(authInstance, provider)
             } catch (error) {
                 console.error("Error en signInWithRedirect:", error)
             }
         } else {
-            console.log("hola")
             const result = await signInWithPopup(authInstance, provider)
             callback(result.user)
         }

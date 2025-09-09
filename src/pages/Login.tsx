@@ -8,6 +8,7 @@ function LoginPage() {
     const navigate = useNavigate()
     const location = useLocation()
     const { user } = useAuth()
+    console.log("user-useAuth", user)
 
     const from = location.state?.from?.pathname || "/"
 
