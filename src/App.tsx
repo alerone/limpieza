@@ -5,8 +5,10 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
 import LoginPage from './pages/Login'
 import { ProfilePage } from './pages/Profile'
+import { useTitle } from './hooks/useTitle'
 
 function App() {
+    useTitle("Tareas de Limpieza")
     return (
         <BrowserRouter>
             <AuthProvider>
