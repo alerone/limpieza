@@ -39,7 +39,7 @@ export function ProfilePage() {
             </main>
             <div className="absolute flex bottom-8 w-full items-center justify-center">
                 <button
-                    className="font-bold bg-rose-600 text-white rounded-lg px-2 py-1 text-md 
+                    className="font-bold bg-rose-500 text-white rounded-lg px-2 py-1 text-md 
                     hover:cursor-pointer hover:scale-95 transition-all duration-200 xl:text-xl"
                     onClick={() => auth.logout()}
                 >Cerrar Sesión</button>

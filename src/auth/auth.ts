@@ -1,7 +1,6 @@
 import { signOut, getAuth, GoogleAuthProvider, signInWithPopup, type User, signInWithRedirect, getRedirectResult } from 'firebase/auth'
 import { app } from '../firebase/firebase'
 import { isIOSSafari } from '../utils/isIOS'
-// import { isIOSSafari } from '../utils/isIOS'
 
 
 export const authInstance = getAuth(app)
