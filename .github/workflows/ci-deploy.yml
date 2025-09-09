@@ -48,11 +48,11 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # 6. Deploy to Firebase
+        # 6. Deploy to Firebase
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIMPIEZAPISO_CB761 }}
           projectId: limpiezapiso-cb761
-          channelId: ${{ github.event_name == 'pull_request' && 'pr-' + github.event.pull_request.number || 'live' }}
+          channelId: live
