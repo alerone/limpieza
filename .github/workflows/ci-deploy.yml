@@ -1,0 +1,58 @@
+name: Node.js CI and Deploy to Firebase
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout code
+      - uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Set environment variables
+      - name: Set env variables
+        run: |
+          echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env
+          echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> .env
+          echo "VITE_FIREBASE_DB_URL=${{ secrets.VITE_FIREBASE_DB_URL }}" >> .env
+          echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> .env
+          echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> .env
+          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env
+          echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> .env
+          echo "VITE_EMAIL_ALVARO=${{ secrets.VITE_EMAIL_ALVARO }}" >> .env
+          echo "VITE_EMAIL_RUBIUS=${{ secrets.VITE_EMAIL_RUBIUS }}" >> .env
+          echo "VITE_EMAIL_VICTOR=${{ secrets.VITE_EMAIL_VICTOR }}" >> .env
+          echo "VITE_EMAIL_ALEX=${{ secrets.VITE_EMAIL_ALEX }}" >> .env
+
+      # 5. Build project
+      - name: Build project
+        run: npm run build
+
+      # 6. Deploy to Firebase
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LIMPIEZAPISO_CB761 }}
+          projectId: limpiezapiso-cb761
+          channelId: ${{ github.event_name == 'pull_request' && 'pr-' + github.event.pull_request.number || 'live' }}
