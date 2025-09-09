@@ -14,7 +14,7 @@ function App() {
         redirectResult()
     }, [])
     return (
-        <BrowserRouter basename="/limpieza">
+        <BrowserRouter>
             <AuthProvider>
                 <Routes>
                     <Route path="login" element={<LoginPage />} />
