@@ -13,6 +13,8 @@ type CardProps = {
 
 export function Card({ user, hasPermission, onClickTask }: CardProps) {
     const [userPath, setUserPath] = useState<string | null>(null)
+    const [timeout, setTimeoutValue] = useState(200)
+
     useEffect(() => {
         const fetchUserPath = async () => {
             const path = getCurrentWeekUserPath(user.username)
@@ -24,12 +26,18 @@ export function Card({ user, hasPermission, onClickTask }: CardProps) {
     const userVal = useFirebaseValue(userPath ?? "")
     const isDone = userVal?.done ?? false
 
-    useEffect(() => {
+    const toggleTaskHistory = () => {
         if (isDone) {
             removeTaskNotDone(user.email)
         } else {
             addTaskNotDone(user.email, user.task ?? "no task")
         }
+        setTimeoutValue(0)
+    }
+
+    useEffect(() => {
+        const timeoutCallback = setTimeout(toggleTaskHistory, timeout)
+        return () => clearTimeout(timeoutCallback)
     }, [isDone])
 
     const timeDone = userVal?.fecha ?? ""

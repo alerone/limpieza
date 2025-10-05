@@ -1,3 +1,4 @@
+import { isAdmin } from "../auth/isAdmin"
 import type { User } from "../types/User"
 import { Card } from "./Card"
 
@@ -14,7 +15,7 @@ export function CardGrid({ users, currentEmail, onToggleCompleted }: CardGridPro
                     key={user.id}
                     onClickTask={() => onToggleCompleted(user)}
                     user={user}
-                    hasPermission={currentEmail === user.email}
+                    hasPermission={currentEmail === user.email || isAdmin(currentEmail)}
                 />
             ))}
         </div>

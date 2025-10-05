@@ -43,6 +43,7 @@ jobs:
           echo "VITE_EMAIL_RUBIUS=${{ secrets.VITE_EMAIL_RUBIUS }}" >> .env
           echo "VITE_EMAIL_VICTOR=${{ secrets.VITE_EMAIL_VICTOR }}" >> .env
           echo "VITE_EMAIL_ALEX=${{ secrets.VITE_EMAIL_ALEX }}" >> .env
+          echo "VITE_ADMIN_EMAIL=${{ secrets.VITE_ADMIN_EMAIL }}" >> .env
 
       # 5. Build project
       - name: Build project
