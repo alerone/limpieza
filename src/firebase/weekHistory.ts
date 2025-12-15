@@ -1,68 +1,79 @@
 import {
-  get,
-  limitToLast,
-  orderByKey,
-  query,
-  ref,
-  update,
+    get,
+    limitToLast,
+    orderByKey,
+    query,
+    ref,
+    update,
 } from "firebase/database";
 import { db } from "./firebase";
 import { getPreciseDateString, getWeekBounds } from "../utils/date";
+import { addTaskNotDone, removeTaskNotDone } from "./usersHistory";
 
 const root = "piso";
 
-export async function toggleDone(userKey: string) {
-  const currentWeekPath = getCurrentWeekPath();
-  const path = `${currentWeekPath}/usuarios/${userKey}`;
-  const userRef = ref(db, path);
-  const snapshot = await get(userRef);
+export async function toggleDone(
+    userKey: string,
+    userEmail: string,
+    currentTask: string,
+) {
+    const currentWeekPath = getCurrentWeekPath();
+    const path = `${currentWeekPath}/usuarios/${userKey}`;
+    const userRef = ref(db, path);
+    const snapshot = await get(userRef);
 
-  if (!snapshot.exists()) {
-    console.error(`The user ${userKey} does not exist on database`);
-    return;
-  }
+    if (!snapshot.exists()) {
+        console.error(`The user ${userKey} does not exist on database`);
+        return;
+    }
 
-  const user = snapshot.val();
-  const newStatus = !user.done;
+    const user = snapshot.val();
+    const newStatus = !user.done;
 
-  const today = getPreciseDateString();
-  const newDate = newStatus ? today : "not done";
+    const today = getPreciseDateString();
+    const newDate = newStatus ? today : "not done";
 
-  await update(userRef, { done: newStatus, fecha: newDate });
+    await update(userRef, { done: newStatus, fecha: newDate });
 
-  return newStatus;
+    if (newStatus === false) {
+        await addTaskNotDone(userEmail, currentTask);
+    } else {
+        await removeTaskNotDone(userEmail);
+    }
+
+    return newStatus;
 }
 
 export function getCurrentWeekPath() {
-  const currentWeek = getWeekBounds().replaceAll("/", "_");
-  return `${root}/${currentWeek}/`;
+    const currentWeek = getWeekBounds().replaceAll("/", "_");
+    return `${root}/${currentWeek}/`;
 }
 
 export async function getLastWeekId() {
-  const weeksRef = ref(db, "piso");
-  const q = query(weeksRef, orderByKey(), limitToLast(1));
-  const snapshot = await get(q);
+    const weeksRef = ref(db, "piso");
+    const q = query(weeksRef, orderByKey(), limitToLast(1));
+    const snapshot = await get(q);
 
-  if (snapshot.exists()) {
-    const data = snapshot.val();
-    const [id] = Object.keys(data);
-    return id;
-  }
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        const [id] = Object.keys(data);
+        return id;
+    }
 
-  return null;
+    return null;
 }
 
 export function getCurrentWeekUserPath(user: string) {
-  const currentWeek = getCurrentWeekPath();
-  console.log(currentWeek);
-  return `${currentWeek}/usuarios/${user}`;
+    const currentWeek = getCurrentWeekPath();
+    console.log(currentWeek);
+    return `${currentWeek}/usuarios/${user}`;
 }
 
 export async function getCurrentWeekInstance() {
-  const currentWeek = getCurrentWeekPath();
+    const currentWeek = getCurrentWeekPath();
 
-  const userRef = ref(db, currentWeek);
-  const snapshot = await get(userRef);
+    const userRef = ref(db, currentWeek);
+    const snapshot = await get(userRef);
 
-  return snapshot;
+    return snapshot;
 }

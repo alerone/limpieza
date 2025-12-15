@@ -8,6 +8,11 @@ pnpm-debug.log*
 lerna-debug.log*
 .env
 
+*.jpg
+*.png
+*-lock.*
+
+
 node_modules
 dist
 dist-ssr
