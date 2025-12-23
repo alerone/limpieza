@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { getWeekOfYear } from "../utils/date";
+import { getWeekOfYear } from "@/utils/date";
 import { useWeekTracker } from "./useWeekTracker";
-import { baseUsers } from "../types/User";
-import { initWeek } from "../firebase/initWeek";
+import { baseUsers } from "@/types/User";
+import { initWeek } from "@/firebase/initWeek";
 
 const TASKS_BASE = ["Cocina", "Cocina", "Salón", "Pasillo"];
 
