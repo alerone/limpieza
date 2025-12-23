@@ -3,7 +3,6 @@ import { getCurrentWeekUserPath } from "../firebase/weekHistory";
 import { useFirebaseValue } from "../hooks/useFirebaseValue";
 import type { User } from "../types/User";
 import { Icon } from "./Icon";
-import { addTaskNotDone, removeTaskNotDone } from "../firebase/usersHistory";
 
 type CardProps = {
     user: User;
@@ -13,8 +12,6 @@ type CardProps = {
 
 export function Card({ user, hasPermission, onClickTask }: CardProps) {
     const [userPath, setUserPath] = useState<string | null>(null);
-    const [timeout, setTimeoutValue] = useState(200);
-
     useEffect(() => {
         const fetchUserPath = async () => {
             const path = getCurrentWeekUserPath(user.username);

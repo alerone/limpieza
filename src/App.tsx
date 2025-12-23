@@ -1,33 +1,38 @@
-import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './auth/AuthProvider'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import Dashboard from './pages/Dashboard'
-import LoginPage from './pages/Login'
-import { ProfilePage } from './pages/Profile'
-import { useTitle } from './hooks/useTitle'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthProvider";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
+import LoginPage from "./pages/Login";
+import { ProfilePage } from "./pages/Profile";
+import { useTitle } from "./hooks/useTitle";
 
 function App() {
-    useTitle("Tareas de Limpieza")
-    return (
-        <BrowserRouter>
-            <AuthProvider>
-                <Routes>
-                    <Route path="login" element={<LoginPage />} />
-                    <Route path="/" element={
-                        <ProtectedRoute>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="profile" element={
-                        <ProtectedRoute>
-                            <ProfilePage />
-                        </ProtectedRoute>
-                    } />
-                </Routes>
-            </AuthProvider>
-        </BrowserRouter>
-    )
+  useTitle("Tareas de Limpieza");
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

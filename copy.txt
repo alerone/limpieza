@@ -1,3 +1,77 @@
+--- Project Directories ---
+.
+├── README.md
+├── copy.txt
+├── eslint.config.js
+├── firebase.json
+├── index.html
+├── package-lock.json
+├── package.json
+├── public
+│   ├── images
+│   │   ├── alex.jpg
+│   │   ├── jobibi.jpg
+│   │   ├── me.jpg
+│   │   ├── rubiu.jpg
+│   │   └── victor.jpg
+│   ├── index.html
+│   └── vite.svg
+├── src
+│   ├── App.tsx
+│   ├── assets
+│   │   └── react.svg
+│   ├── auth
+│   │   ├── AuthProvider.tsx
+│   │   ├── auth.ts
+│   │   └── isAdmin.ts
+│   ├── components
+│   │   ├── Buttons.tsx
+│   │   ├── Card.tsx
+│   │   ├── CardGrid.tsx
+│   │   ├── Icon.tsx
+│   │   ├── ProtectedRoute.tsx
+│   │   ├── UserHistory.tsx
+│   │   ├── WeekDisplay.tsx
+│   │   └── loader
+│   │       ├── Loader.css
+│   │       └── Loader.tsx
+│   ├── config
+│   │   ├── cleaners.ts
+│   │   └── env.ts
+│   ├── features
+│   ├── firebase
+│   │   ├── firebase.ts
+│   │   ├── initWeek.ts
+│   │   ├── usersHistory.ts
+│   │   └── weekHistory.ts
+│   ├── hooks
+│   │   ├── useFirebaseValue.tsx
+│   │   ├── useGetUsersInfo.tsx
+│   │   ├── useHistory.tsx
+│   │   ├── useTitle.tsx
+│   │   └── useWeekTracker.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   ├── pages
+│   │   ├── Dashboard.tsx
+│   │   ├── Login.tsx
+│   │   └── Profile.tsx
+│   ├── services
+│   ├── types
+│   │   ├── User.ts
+│   │   └── domain.ts
+│   ├── utils
+│   │   ├── date.ts
+│   │   ├── isIOS.ts
+│   │   ├── taskRotation.ts
+│   │   └── users.ts
+│   └── vite-env.d.ts
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+--- Project Files ---
 --- README.md ---
 # React + TypeScript + Vite
 
@@ -68,8 +142,6 @@ export default tseslint.config([
   },
 ])
 ```
-
---- copy.txt ---
 
 --- eslint.config.js ---
 import js from '@eslint/js'
@@ -162,7 +234,7 @@ export default tseslint.config([
     "tailwindcss": "^4.1.12",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2"
+    "vite": "^7.1.7"
   }
 }
 
@@ -257,48 +329,46 @@ export default tseslint.config([
   </body>
 </html>
 
---- public/vite.svg ---
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
---- src/App.css ---
-@import "tailwindcss";
-
 --- src/App.tsx ---
-import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './auth/AuthProvider'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import Dashboard from './pages/Dashboard'
-import LoginPage from './pages/Login'
-import { ProfilePage } from './pages/Profile'
-import { useTitle } from './hooks/useTitle'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthProvider";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
+import LoginPage from "./pages/Login";
+import { ProfilePage } from "./pages/Profile";
+import { useTitle } from "./hooks/useTitle";
 
 function App() {
-    useTitle("Tareas de Limpieza")
+    useTitle("Tareas de Limpieza");
     return (
         <BrowserRouter>
             <AuthProvider>
                 <Routes>
                     <Route path="login" element={<LoginPage />} />
-                    <Route path="/" element={
-                        <ProtectedRoute>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="profile" element={
-                        <ProtectedRoute>
-                            <ProfilePage />
-                        </ProtectedRoute>
-                    } />
+                    <Route
+                        path="/"
+                        element={
+                            <ProtectedRoute>
+                                <Dashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="profile"
+                        element={
+                            <ProtectedRoute>
+                                <ProfilePage />
+                            </ProtectedRoute>
+                        }
+                    />
                 </Routes>
             </AuthProvider>
         </BrowserRouter>
-    )
+    );
 }
 
-export default App
+export default App;
 
---- src/assets/react.svg ---
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
 --- src/auth/AuthProvider.tsx ---
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { authInstance } from "./auth";
@@ -451,76 +521,57 @@ export function PrimaryButton({ label, className, onButtonClick }: ButtonProps) 
 }
 
 --- src/components/Card.tsx ---
-import { useEffect, useState } from "react"
-import { getCurrentWeekUserPath } from "../firebase/weekHistory"
-import { useFirebaseValue } from "../hooks/useFirebaseValue"
-import type { User } from "../types/User"
-import { Icon } from "./Icon"
-import { addTaskNotDone, removeTaskNotDone } from "../firebase/usersHistory"
+import { useEffect, useState } from "react";
+import { getCurrentWeekUserPath } from "../firebase/weekHistory";
+import { useFirebaseValue } from "../hooks/useFirebaseValue";
+import type { User } from "../types/User";
+import { Icon } from "./Icon";
 
 type CardProps = {
-    user: User,
-    hasPermission: boolean,
-    onClickTask: () => void
-}
+    user: User;
+    hasPermission: boolean;
+    onClickTask: () => void;
+};
 
 export function Card({ user, hasPermission, onClickTask }: CardProps) {
-    const [userPath, setUserPath] = useState<string | null>(null)
-    const [timeout, setTimeoutValue] = useState(200)
-
+    const [userPath, setUserPath] = useState<string | null>(null);
     useEffect(() => {
         const fetchUserPath = async () => {
-            const path = getCurrentWeekUserPath(user.username)
-            setUserPath(path)
-        }
-        fetchUserPath()
-    }, [user.name])
+            const path = getCurrentWeekUserPath(user.username);
+            setUserPath(path);
+        };
+        fetchUserPath();
+    }, [user.name]);
 
-    const userVal = useFirebaseValue(userPath ?? "")
-    const isDone = userVal?.done ?? false
+    const userVal = useFirebaseValue(userPath ?? "");
+    const isDone = userVal?.done ?? false;
 
-    const toggleTaskHistory = () => {
-        if (isDone) {
-            removeTaskNotDone(user.email)
-        } else {
-            addTaskNotDone(user.email, user.task ?? "no task")
-        }
-        setTimeoutValue(0)
-    }
-
-    useEffect(() => {
-        const timeoutCallback = setTimeout(toggleTaskHistory, timeout)
-        return () => clearTimeout(timeoutCallback)
-    }, [isDone])
-
-    const timeDone = userVal?.fecha ?? ""
+    const timeDone = userVal?.fecha ?? "";
 
     return (
         <div
             className={`flex flex-col justify-between ${hasPermission ? "hover:cursor-pointer hover:scale-105 hover:shadow-xl" : ""} transition-all duration-300 bg-slate-50 shadow-lg rounded-xl overflow-hidden p-4 xl:p-3`}
-            onClick={() => { if (hasPermission) onClickTask() }}
+            onClick={() => {
+                if (hasPermission) onClickTask();
+            }}
         >
             <div className="flex flex-col gap-1 items-center p-2 rounded-lg ">
                 <Icon image={user.image} color={user.color} size="small" />
-                <h2
-                    className="text-2xl xl:text-xl font-bold text-gray-800"
-                >
+                <h2 className="text-2xl xl:text-xl font-bold text-gray-800">
                     {user.name}
                 </h2>
                 <div className="bg-gray-200 rounded-full h-[3px] w-full"></div>
             </div>
             <div className="flex mt-2 xl:mt-0 flex-col gap-2">
-                <h3
-                    className="bg-gradient-to-r from-orange-300 to-orange-400  rounded-lg text-2xl font-bold xl:text-xl text-center shadow-md text-gray-800 lato-font"
-                >
+                <h3 className="bg-gradient-to-r from-orange-300 to-orange-400  rounded-lg text-2xl font-bold xl:text-xl text-center shadow-md text-gray-800 lato-font">
                     {user.task}
                 </h3>
                 <div className="flex flex-row justify-end items-center gap-3">
-                    {isDone &&
+                    {isDone && (
                         <span className="text-emerald-500 font-semibold text-xs">
                             {timeDone}
                         </span>
-                    }
+                    )}
                     <span
                         className={`inline-flex items-center justify-center 
                             rounded-full text-xs font-bold shadow-md
@@ -532,7 +583,7 @@ export function Card({ user, hasPermission, onClickTask }: CardProps) {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 --- src/components/CardGrid.tsx ---
@@ -720,6 +771,93 @@ export default function Loader() {
     return <span className="loader" />
 }
 
+--- src/config/cleaners.ts ---
+import type { CleanerProfile } from "../types/domain";
+import { ENV } from "./env";
+
+export const CLEANERS: Record<string, CleanerProfile> = {
+    alvaro: {
+        id: "9d2fd7a7-2571-4f51-9794-4947de3a842d",
+        username: "alvaro",
+        name: "Álvaro",
+        email: ENV.users.alvaro,
+        avatarUrl: "/images/me.jpg",
+        themeColor: "blue",
+    },
+    rubius: {
+        id: "53579f58-926b-4cdf-98bc-2956c1da412c",
+        username: "rubius",
+        name: "Rubén",
+        email: ENV.users.rubius,
+        avatarUrl: "/images/rubiu.jpg",
+        themeColor: "yellow",
+    },
+    victor: {
+        id: "1a7c9359-3c3e-4e21-87ca-77890359cc1f",
+        username: "victor",
+        name: "Víctor",
+        email: ENV.users.victor,
+        avatarUrl: "/images/victor.jpg",
+        themeColor: "pink",
+    },
+    alex: {
+        id: "fa59951a-20c2-436e-bb70-cde97cdee399",
+        username: "alex",
+        name: "Álex",
+        email: ENV.users.alex,
+        avatarUrl: "/images/alex.jpg",
+        themeColor: "green",
+    },
+};
+
+export const CLEANER_LIST = Object.values(CLEANERS);
+
+--- src/config/env.ts ---
+const requiredEnv = (key: string, value: string | undefined): string => {
+    if (!value) throw new Error(`Missing env variable: ${key}`);
+    return value;
+};
+
+export const ENV = {
+    firebase: {
+        apiKey: requiredEnv(
+            "VITE_FIREBASE_API_KEY",
+            import.meta.env.VITE_FIREBASE_API_KEY,
+        ),
+        authDomain: requiredEnv(
+            "VITE_FIREBASE_AUTH_DOMAIN",
+            import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+        ),
+        databaseURL: requiredEnv(
+            "VITE_FIREBASE_DB_URL",
+            import.meta.env.VITE_FIREBASE_DB_URL,
+        ),
+        projectId: requiredEnv(
+            "VITE_FIREBASE_PROJECT_ID",
+            import.meta.env.VITE_FIREBASE_PROJECT_ID,
+        ),
+        storageBucket: requiredEnv(
+            "VITE_FIREBASE_STORAGE_BUCKET",
+            import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+        ),
+        messagingSenderId: requiredEnv(
+            "VITE_FIREBASE_MESSAGING_SENDER_ID",
+            import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+        ),
+        appId: requiredEnv(
+            "VITE_FIREBASE_APP_ID",
+            import.meta.env.VITE_FIREBASE_APP_ID,
+        ),
+    },
+    adminEmail: import.meta.env.VITE_ADMIN_EMAIL || "",
+    users: {
+        alvaro: import.meta.env.VITE_EMAIL_ALVARO || "",
+        rubius: import.meta.env.VITE_EMAIL_RUBIUS || "",
+        victor: import.meta.env.VITE_EMAIL_VICTOR || "",
+        alex: import.meta.env.VITE_EMAIL_ALEX || "",
+    },
+} as const;
+
 --- src/firebase/firebase.ts ---
 import { initializeApp } from "firebase/app"
 import { getDatabase } from "firebase/database"
@@ -808,72 +946,83 @@ function getCurrentWeekUserHistoryPath(email: string) {
 
 --- src/firebase/weekHistory.ts ---
 import {
-  get,
-  limitToLast,
-  orderByKey,
-  query,
-  ref,
-  update,
+    get,
+    limitToLast,
+    orderByKey,
+    query,
+    ref,
+    update,
 } from "firebase/database";
 import { db } from "./firebase";
 import { getPreciseDateString, getWeekBounds } from "../utils/date";
+import { addTaskNotDone, removeTaskNotDone } from "./usersHistory";
 
 const root = "piso";
 
-export async function toggleDone(userKey: string) {
-  const currentWeekPath = getCurrentWeekPath();
-  const path = `${currentWeekPath}/usuarios/${userKey}`;
-  const userRef = ref(db, path);
-  const snapshot = await get(userRef);
+export async function toggleDone(
+    userKey: string,
+    userEmail: string,
+    currentTask: string,
+) {
+    const currentWeekPath = getCurrentWeekPath();
+    const path = `${currentWeekPath}/usuarios/${userKey}`;
+    const userRef = ref(db, path);
+    const snapshot = await get(userRef);
 
-  if (!snapshot.exists()) {
-    console.error(`The user ${userKey} does not exist on database`);
-    return;
-  }
+    if (!snapshot.exists()) {
+        console.error(`The user ${userKey} does not exist on database`);
+        return;
+    }
 
-  const user = snapshot.val();
-  const newStatus = !user.done;
+    const user = snapshot.val();
+    const newStatus = !user.done;
 
-  const today = getPreciseDateString();
-  const newDate = newStatus ? today : "not done";
+    const today = getPreciseDateString();
+    const newDate = newStatus ? today : "not done";
 
-  await update(userRef, { done: newStatus, fecha: newDate });
+    await update(userRef, { done: newStatus, fecha: newDate });
 
-  return newStatus;
+    if (newStatus === false) {
+        await addTaskNotDone(userEmail, currentTask);
+    } else {
+        await removeTaskNotDone(userEmail);
+    }
+
+    return newStatus;
 }
 
 export function getCurrentWeekPath() {
-  const currentWeek = getWeekBounds().replaceAll("/", "_");
-  return `${root}/${currentWeek}/`;
+    const currentWeek = getWeekBounds().replaceAll("/", "_");
+    return `${root}/${currentWeek}/`;
 }
 
 export async function getLastWeekId() {
-  const weeksRef = ref(db, "piso");
-  const q = query(weeksRef, orderByKey(), limitToLast(1));
-  const snapshot = await get(q);
+    const weeksRef = ref(db, "piso");
+    const q = query(weeksRef, orderByKey(), limitToLast(1));
+    const snapshot = await get(q);
 
-  if (snapshot.exists()) {
-    const data = snapshot.val();
-    const [id] = Object.keys(data);
-    return id;
-  }
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        const [id] = Object.keys(data);
+        return id;
+    }
 
-  return null;
+    return null;
 }
 
 export function getCurrentWeekUserPath(user: string) {
-  const currentWeek = getCurrentWeekPath();
-  console.log(currentWeek);
-  return `${currentWeek}/usuarios/${user}`;
+    const currentWeek = getCurrentWeekPath();
+    console.log(currentWeek);
+    return `${currentWeek}/usuarios/${user}`;
 }
 
 export async function getCurrentWeekInstance() {
-  const currentWeek = getCurrentWeekPath();
+    const currentWeek = getCurrentWeekPath();
 
-  const userRef = ref(db, currentWeek);
-  const snapshot = await get(userRef);
+    const userRef = ref(db, currentWeek);
+    const snapshot = await get(userRef);
 
-  return snapshot;
+    return snapshot;
 }
 
 --- src/hooks/useFirebaseValue.tsx ---
@@ -899,53 +1048,51 @@ export const useFirebaseValue = (path: string) => {
 }
 
 --- src/hooks/useGetUsersInfo.tsx ---
-import { useEffect, useMemo } from "react"
-import { getWeekOfYear } from "../utils/date"
-import { useWeekTracker } from "./useWeekTracker"
-import { baseUsers } from "../types/User"
-import { initWeek } from "../firebase/initWeek"
+import { useEffect, useMemo } from "react";
+import { getWeekOfYear } from "../utils/date";
+import { useWeekTracker } from "./useWeekTracker";
+import { baseUsers } from "../types/User";
+import { initWeek } from "../firebase/initWeek";
 
-const tasks = ["Cocina", "Cocina", "Salón", "Pasillo"]
+const TASKS_BASE = ["Cocina", "Cocina", "Salón", "Pasillo"];
 
-const taskOrders = [
-    [tasks[3], tasks[2], tasks[0], tasks[1]], // mod 0
-    tasks,                                    // mod 1
-    tasks.slice().reverse(),                  // mod 2
-    [tasks[0], tasks[1], tasks[3], tasks[2]], // mod 3
-]
+function getTasksForWeek(weekNumber: number) {
+    const shift = weekNumber % 4;
+    const rotatedTasks = [
+        ...TASKS_BASE.slice(4 - shift),
+        ...TASKS_BASE.slice(0, 4 - shift),
+    ];
 
-function getTaskOrder() {
-    const week = getWeekOfYear()
-    return taskOrders[week % 4]
+    return rotatedTasks;
 }
 
 export function useGetUsersInfo() {
-    const week = useWeekTracker()
+    const weekString = useWeekTracker();
 
     const users = useMemo(() => {
-        const taskOrder = getTaskOrder()
-
+        const weekNumber = getWeekOfYear();
+        const currentTasks = getTasksForWeek(weekNumber);
 
         const users = {
             ...baseUsers,
-            rubius: { ...baseUsers.rubius, task: taskOrder[0] },
-            alvaro: { ...baseUsers.alvaro, task: taskOrder[1] },
-            victor: { ...baseUsers.victor, task: taskOrder[2] },
-            alex: { ...baseUsers.alex, task: taskOrder[3] },
-        }
+            rubius: { ...baseUsers.rubius, task: currentTasks[0] },
+            alvaro: { ...baseUsers.alvaro, task: currentTasks[1] },
+            victor: { ...baseUsers.victor, task: currentTasks[2] },
+            alex: { ...baseUsers.alex, task: currentTasks[3] },
+        };
 
-        return users
-    }, [week])
+        return users;
+    }, [weekString]);
+
     useEffect(() => {
         const handleWeekInit = async () => {
-            await initWeek(Object.values(users))
-        }
+            await initWeek(Object.values(users));
+        };
 
-        handleWeekInit()
-    }, [users])
-    return users
+        handleWeekInit();
+    }, [users]);
+    return users;
 }
-
 
 --- src/hooks/useHistory.tsx ---
 import { cleanEmail } from "../utils/users";
@@ -999,19 +1146,35 @@ export function useWeekTracker() {
 }
 
 --- src/index.css ---
+@import "tailwindcss";
+
+@theme {
+  /* Definimos semántica en lugar de colores "raw" */
+  --color-brand-primary: --color-indigo-600;
+  --color-brand-secondary: --color-purple-800;
+
+  --color-status-success: --color-emerald-500;
+  --color-status-pending: --color-rose-500;
+  --color-status-warning: --color-amber-400;
+
+  --font-display: "Exo 2", system-ui, sans-serif;
+  --font-body: "Lato", system-ui, sans-serif;
+}
+
+/* Base styles cleanup */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
+}
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+body {
+  margin: 0;
+  min-height: 100vh;
+  /* Eliminamos el flex center global que rompe layouts complejos */
+  display: block;
 }
 
 a {
@@ -1021,14 +1184,6 @@ a {
 }
 a:hover {
   color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -1077,37 +1232,48 @@ createRoot(document.getElementById('root')!).render(
 )
 
 --- src/pages/Dashboard.tsx ---
-import { useGetUsersInfo } from "../hooks/useGetUsersInfo"
-import { WeekDisplay } from "../components/WeekDisplay"
-import { getImageByEmail, type User } from "../types/User"
-import { CardGrid } from "../components/CardGrid"
-import { toggleDone } from "../firebase/weekHistory"
-import { Icon } from "../components/Icon"
-import { useAuth } from "../auth/AuthProvider"
-import { useNavigate } from "react-router-dom"
-import { useTitle } from "../hooks/useTitle"
+import { useGetUsersInfo } from "../hooks/useGetUsersInfo";
+import { WeekDisplay } from "../components/WeekDisplay";
+import { getImageByEmail, type User } from "../types/User";
+import { CardGrid } from "../components/CardGrid";
+import { toggleDone } from "../firebase/weekHistory";
+import { Icon } from "../components/Icon";
+import { useAuth } from "../auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
+import { useTitle } from "../hooks/useTitle";
 
 function Dashboard() {
-    const users = useGetUsersInfo()
-    const navigate = useNavigate()
-    const { user } = useAuth()
+    const users = useGetUsersInfo();
+    const navigate = useNavigate();
+    const { user } = useAuth();
 
-    useTitle("Home - Tareas de Limpieza")
+    useTitle("Home - Tareas de Limpieza");
 
-
-    const usersList: User[] = Object.values(users)
+    const usersList: User[] = Object.values(users);
     return (
-        <div className=' p-4 bg-gradient-to-br from-indigo-600 via-purple-800 to-pink-900 flex flex-col w-screen xl:h-screen 
-            h-auto items-center gap-10 xl:gap-24'>
-            <Icon image={getImageByEmail(user.email)} onClick={() => navigate("profile")} size="medium" className="absolute top-1 xl:top-4  right-1 xl:right-8" />
-            <WeekDisplay className='mt-10' />
-            <CardGrid users={usersList} onToggleCompleted={(user) => { toggleDone(user.username) }} currentEmail={user.email} />
+        <div
+            className=" p-4 bg-gradient-to-br from-indigo-600 via-purple-800 to-pink-900 flex flex-col w-screen xl:h-screen 
+            h-auto items-center gap-10 xl:gap-24"
+        >
+            <Icon
+                image={getImageByEmail(user.email)}
+                onClick={() => navigate("profile")}
+                size="medium"
+                className="absolute top-1 xl:top-4  right-1 xl:right-8"
+            />
+            <WeekDisplay className="mt-10" />
+            <CardGrid
+                users={usersList}
+                onToggleCompleted={(user) => {
+                    toggleDone(user.username, user.email, user.task ?? "no task");
+                }}
+                currentEmail={user.email}
+            />
         </div>
-    )
+    );
 }
 
-export default Dashboard
-
+export default Dashboard;
 
 --- src/pages/Login.tsx ---
 import { useLocation, useNavigate } from "react-router-dom"
@@ -1276,6 +1442,31 @@ export function getUserModelByEmail(email: string) {
     return usersByEmail[email]
 }
 
+--- src/types/domain.ts ---
+export type BrandColor = "blue" | "green" | "purple" | "yellow" | "pink";
+
+export interface CleanerProfile {
+    id: string;
+    username: string;
+    email: string;
+    name: string;
+    avatarUrl: string;
+    themeColor: BrandColor;
+}
+
+export interface WeeklyTaskState {
+    taskName: string;
+    isDone: boolean;
+    completedAt: string | null;
+}
+
+export interface CleanerWithTask extends CleanerProfile, WeeklyTaskState { }
+
+export interface HistoryRecord {
+    weekId: string; // ej: "23-05-2025/30-05-2025"
+    taskName: string;
+}
+
 --- src/utils/date.ts ---
 export function getPreciseDateString() {
     const today = new Date()
@@ -1346,6 +1537,39 @@ export function getMonday() {
 export function isIOSSafari() {
     const ua = window.navigator.userAgent
     return /IP(ad|hone|od)/.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS/.test(ua)
+}
+
+--- src/utils/taskRotation.ts ---
+const TASKS_POOL = ["Cocina", "Cocina", "Salón", "Pasillo"];
+
+/**
+ * Calcula qué tareas tocan en una semana específica basándose en la rotación.
+ * Función pura: Inputs -> Outputs. Sin hooks.
+ */
+export function getTasksForWeek(weekNumber: number): string[] {
+    const shift = weekNumber % 4;
+    // Rotación simple del array
+    return [...TASKS_POOL.slice(4 - shift), ...TASKS_POOL.slice(0, 4 - shift)];
+}
+
+/**
+ * Asigna tarea a un usuario específico basado en el orden estático.
+ * Asumimos el orden: Rubius, Alvaro, Victor, Alex
+ */
+export function getTaskForUser(username: string, weekNumber: number): string {
+    const tasks = getTasksForWeek(weekNumber);
+    switch (username) {
+        case "rubius":
+            return tasks[0];
+        case "alvaro":
+            return tasks[1];
+        case "victor":
+            return tasks[2];
+        case "alex":
+            return tasks[3];
+        default:
+            return "Sin tarea";
+    }
 }
 
 --- src/utils/users.ts ---
@@ -1422,15 +1646,11 @@ export function cleanEmail(email: string) {
 }
 
 --- vite.config.ts ---
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-    plugins: [
-        react(),
-        tailwindcss()
-    ],
-})
-
+  plugins: [react(), tailwindcss()],
+});
 
