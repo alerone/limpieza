@@ -2,9 +2,10 @@ import { get, ref, set, update, increment, push } from "firebase/database";
 import { db } from "@/firebase/firebase";
 import { DB_PATHS } from "./paths";
 import {
-    getPreciseDateString,
-    getWeekBounds,
-    getWeekOfYear,
+  compareWeeks,
+  getPreciseDateString,
+  getWeekBounds,
+  getWeekOfYear,
 } from "@/utils/date";
 import { getTaskForUser } from "@/utils/taskRotation"; // Creado en Fase 1
 import { CLEANER_LIST } from "@/config/cleaners"; // Creado en Fase 1
@@ -15,38 +16,38 @@ import type { CleanerProfile } from "@/types/domain";
  * Implementa el patrón "Check-then-Act" de forma atómica.
  */
 export async function initializeCurrentWeekIfNeeded(): Promise<void> {
-    const weekPath = DB_PATHS.currentWeekRoot();
-    const weekRef = ref(db, weekPath);
+  const weekPath = DB_PATHS.currentWeekRoot();
+  const weekRef = ref(db, weekPath);
 
-    const snapshot = await get(weekRef);
-    if (snapshot.exists()) return; // Ya existe, no hacemos nada.
+  const snapshot = await get(weekRef);
+  if (snapshot.exists()) return; // Ya existe, no hacemos nada.
 
-    // Datos para inicializar
-    const weekNumber = getWeekOfYear();
-    const weekBounds = getWeekBounds();
+  // Datos para inicializar
+  const weekNumber = getWeekOfYear();
+  const weekBounds = getWeekBounds();
 
-    // Construimos el estado inicial de cada usuario usando la configuración central
-    const initialUsersState = CLEANER_LIST.reduce(
-        (acc, cleaner) => {
-            acc[cleaner.username] = {
-                name: cleaner.name,
-                task: getTaskForUser(cleaner.username, weekNumber),
-                done: false,
-                fecha: "not done",
-            };
-            return acc;
-        },
-        {} as Record<string, any>,
-    );
+  // Construimos el estado inicial de cada usuario usando la configuración central
+  const initialUsersState = CLEANER_LIST.reduce(
+    (acc, cleaner) => {
+      acc[cleaner.username] = {
+        name: cleaner.name,
+        task: getTaskForUser(cleaner.username, weekNumber),
+        done: false,
+        fecha: "not done",
+      };
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
 
-    console.info(`📅 Inicializando semana ${weekBounds}...`);
+  console.info(`📅 Inicializando semana ${weekBounds}...`);
 
-    await set(weekRef, {
-        year: new Date().getFullYear(),
-        weekNumber,
-        week: weekBounds,
-        usuarios: initialUsersState,
-    });
+  await set(weekRef, {
+    year: new Date().getFullYear(),
+    weekNumber,
+    week: weekBounds,
+    usuarios: initialUsersState,
+  });
 }
 
 /**
@@ -54,69 +55,122 @@ export async function initializeCurrentWeekIfNeeded(): Promise<void> {
  * y actualiza el historial personal del usuario simultáneamente.
  */
 export async function toggleTaskCompletion(
-    cleaner: CleanerProfile,
-    currentTaskName: string,
-): Promise<boolean> {
-    // 1. Obtener estado actual
-    const userPath = DB_PATHS.weeklyUserStatus(cleaner.username);
-    const userRef = ref(db, userPath);
-    const snapshot = await get(userRef);
+  cleaner: CleanerProfile,
+  currentTaskName: string,
+  targetWeekId: string,
+): Promise<{ success: boolean; message?: string }> {
+  const currentWeekId = getWeekBounds(); // La semana REAL de hoy
+  const weekDiff = compareWeeks(targetWeekId, currentWeekId);
 
-    if (!snapshot.exists())
-        throw new Error("Usuario no encontrado en la semana actual");
+  // Reglas:
+  // 0 = Actual (Permitido, +20pts)
+  // -1 = Anterior inmediata (Permitido, +5pts)
+  // < -1 = Pasado lejano (Solo lectura)
+  // > 0 = Futuro (Solo lectura)
 
-    const data = snapshot.val();
-    const newStatus = !data.done;
-    const newDate = newStatus ? getPreciseDateString() : "not done";
-
-    // === LÓGICA DE PUNTOS ===
-    // Si completa: +20 puntos. Si desmarca (corrige error): -20 puntos.
-    // La penalización de -10 por no hacerla se gestionará externamente al cerrar la semana.
-    const pointsDelta = newStatus ? 20 : -20;
-    const actionType = newStatus ? "MANDATORY_DONE" : "MANDATORY_UNDONE";
-    const logDescription = newStatus
-        ? `Completó su tarea semanal: ${currentTaskName}`
-        : `Desmarcó su tarea: ${currentTaskName}`;
-
-    // 2. Preparar actualizaciones atómicas
-    const updates: Record<string, any> = {};
-
-    // A) Actualizar semana actual
-    updates[`${userPath}/done`] = newStatus;
-    updates[`${userPath}/fecha`] = newDate;
-
-    // B) Actualizar historial de pendientes
-    const currentWeekId = getWeekBounds();
-    const historyPath = DB_PATHS.userHistoryItem(cleaner.email, currentWeekId);
-
-    if (newStatus === false) {
-        updates[historyPath] = currentTaskName;
-    } else {
-        updates[historyPath] = null;
-    }
-
-    // Si completa (true) sumamos 1, si desmarca (false) restamos 1
-    const statsPath = DB_PATHS.userStats(cleaner.username);
-    updates[`${statsPath}/completedTasks`] = increment(newStatus ? 1 : -1);
-
-    updates[`${statsPath}/totalPoints`] = increment(pointsDelta);
-
-    // 5. Generar Log de Acción
-    const newLogRef = push(ref(db, DB_PATHS.logs()));
-    const logId = newLogRef.key;
-    updates[`${DB_PATHS.logs()}/${logId}`] = {
-        id: logId,
-        timestamp: Date.now(),
-        userId: cleaner.username,
-        userName: cleaner.name,
-        userAvatar: cleaner.avatarUrl,
-        actionType: actionType,
-        description: logDescription,
-        pointsDelta: pointsDelta,
+  if (weekDiff < -1)
+    return {
+      success: false,
+      message: "Demasiado tarde para recuperar esta semana.",
+    };
+  if (weekDiff > 0)
+    return {
+      success: false,
+      message: "No puedes completar tareas del futuro.",
     };
 
-    // Ejecutamos TODO a la vez
-    await update(ref(db), updates);
+  // 2. Obtener Referencias usando la semana OBJETIVO (targetWeekId)
+  // Importante: DB_PATHS debe aceptar el weekId.
+  // NOTA: Vamos a tener que ajustar DB_PATHS en el siguiente paso para soportar esto,
+  // o construimos el path manualmente aquí para no romper la API global.
+  // Lo ideal: Ajustar DB_PATHS. Por ahora usaremos un hack seguro:
+  const sanitize = (str: string) =>
+    str.replaceAll("/", "_").replaceAll(".", "_");
+  const targetWeekPath = `piso/${sanitize(targetWeekId)}`;
 
-    return newStatus;
+  const userPath = `${targetWeekPath}/usuarios/${cleaner.username}`;
+  const userRef = ref(db, userPath);
+  const snapshot = await get(userRef);
+
+  if (!snapshot.exists())
+    return { success: false, message: "Datos de semana no encontrados." };
+
+  const data = snapshot.val();
+  const newStatus = !data.done;
+  const wasLate = data.isLate || false; // ¿Estaba marcado como tarde antes?
+
+  // 3. Determinar Puntos y Estado Visual
+  let pointsDelta = 0;
+  let isLateAction = false;
+
+  if (newStatus) {
+    // --- COMPLETANDO ---
+    if (weekDiff === 0) {
+      pointsDelta = 20; // A tiempo
+      isLateAction = false;
+    } else {
+      pointsDelta = 5; // Tarde (Recuperación)
+      isLateAction = true;
+    }
+  } else {
+    // --- DESHACIENDO ---
+    // Si deshacemos, restamos lo que se ganó.
+    // Si la tarea era "Late", restamos 5. Si era normal, restamos 20.
+    pointsDelta = wasLate ? -5 : -20;
+  }
+
+  const actionType = newStatus
+    ? isLateAction
+      ? "MANDATORY_LATE"
+      : "MANDATORY_DONE"
+    : "MANDATORY_UNDONE";
+
+  const logDescription = newStatus
+    ? isLateAction
+      ? `Recuperó tarea atrasada: ${currentTaskName}`
+      : `Completó tarea: ${currentTaskName}`
+    : `Desmarcó tarea: ${currentTaskName}`;
+
+  // 4. Actualizaciones Atómicas
+  const updates: Record<string, any> = {};
+
+  updates[`${userPath}/done`] = newStatus;
+  updates[`${userPath}/fecha`] = newStatus
+    ? getPreciseDateString()
+    : "not done";
+  updates[`${userPath}/isLate`] = newStatus ? isLateAction : null; // Guardamos el flag
+
+  // Historial de Pendientes (users/{id}/history)
+  // Si completamos (incluso tarde), borramos del historial de pendientes.
+  // Si desmarcamos, vuelve al historial.
+  const historyPath = DB_PATHS.userHistoryItem(cleaner.email, targetWeekId);
+  if (newStatus === false) {
+    updates[historyPath] = currentTaskName;
+  } else {
+    updates[historyPath] = null;
+  }
+
+  // Ranking (Semanas)
+  const statsPath = DB_PATHS.userStats(cleaner.username);
+  updates[`${statsPath}/completedTasks`] = increment(newStatus ? 1 : -1);
+
+  // Puntos
+  updates[`${statsPath}/totalPoints`] = increment(pointsDelta);
+
+  // Logs
+  const newLogRef = push(ref(db, DB_PATHS.logs()));
+  const logId = newLogRef.key;
+  updates[`${DB_PATHS.logs()}/${logId}`] = {
+    id: logId,
+    timestamp: Date.now(),
+    userId: cleaner.username,
+    userName: cleaner.name,
+    userAvatar: cleaner.avatarUrl,
+    actionType,
+    description: logDescription,
+    pointsDelta,
+  };
+
+  await update(ref(db), updates);
+  return { success: true };
 }
