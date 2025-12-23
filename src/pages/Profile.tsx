@@ -20,7 +20,7 @@ export function ProfilePage() {
   );
 
   // 2. Hook de historial
-  const history = useHistory(user?.email || "");
+  const { history, loading: historyLoading } = useHistory(user?.email);
 
   const handleBack = () => navigate(-1);
   const handleLogout = async () => {
@@ -90,7 +90,13 @@ export function ProfilePage() {
 
         {/* Sección Historial */}
         <section>
-          <UserHistory history={history} />
+          {historyLoading ? (
+            <div className="text-center text-gray-500 py-10 animate-pulse">
+              Cargando historial...
+            </div>
+          ) : (
+            <UserHistory history={history} />
+          )}
         </section>
 
         {/* Zona de Peligro / Logout */}

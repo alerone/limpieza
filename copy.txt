@@ -43,7 +43,6 @@
 │   │       ├── TaskCard.tsx
 │   │       ├── badge.tsx
 │   │       ├── button.tsx
-│   │       ├── card.tsx
 │   │       ├── input.tsx
 │   │       ├── label.tsx
 │   │       ├── separator.tsx
@@ -53,14 +52,11 @@
 │   │   └── env.ts
 │   ├── features
 │   ├── firebase
-│   │   ├── firebase.ts
-│   │   ├── initWeek.ts
-│   │   ├── usersHistory.ts
-│   │   └── weekHistory.ts
+│   │   └── firebase.ts
 │   ├── hooks
 │   │   ├── useDashboardData.tsx
-│   │   ├── useFirebaseValue.tsx
 │   │   ├── useHistory.tsx
+│   │   ├── useRanking.tsx
 │   │   ├── useTitle.tsx
 │   │   └── useWeekTracker.tsx
 │   ├── index.css
@@ -68,7 +64,8 @@
 │   ├── pages
 │   │   ├── Dashboard.tsx
 │   │   ├── Login.tsx
-│   │   └── Profile.tsx
+│   │   ├── Profile.tsx
+│   │   └── Ranking.tsx
 │   ├── services
 │   │   ├── cleaningService.ts
 │   │   └── paths.ts
@@ -392,46 +389,48 @@ import LoginPage from "./pages/Login";
 import { ProfilePage } from "./pages/Profile";
 import { useTitle } from "./hooks/useTitle";
 import { MainLayout, AuthLayout } from "./components/layout/MainLayout";
+import RankingPage from "./pages/Ranking";
 
 function App() {
-    useTitle("CleanApp - Tareas");
-    return (
-        <BrowserRouter>
-            <AuthProvider>
-                <Routes>
-                    <Route
-                        path="login"
-                        element={
-                            <AuthLayout>
-                                <LoginPage />
-                            </AuthLayout>
-                        }
-                    />
+  useTitle("CleanApp - Tareas");
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route
+            path="login"
+            element={
+              <AuthLayout>
+                <LoginPage />
+              </AuthLayout>
+            }
+          />
 
-                    <Route
-                        path="/"
-                        element={
-                            <ProtectedRoute>
-                                <MainLayout>
-                                    <Dashboard />
-                                </MainLayout>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="profile"
-                        element={
-                            <ProtectedRoute>
-                                <MainLayout>
-                                    <ProfilePage />
-                                </MainLayout>
-                            </ProtectedRoute>
-                        }
-                    />
-                </Routes>
-            </AuthProvider>
-        </BrowserRouter>
-    );
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Dashboard />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <ProfilePage />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="ranking" element={<RankingPage />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
 export default App;
@@ -613,45 +612,75 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
 --- src/components/UserHistory.tsx ---
 import type { HistoryItem } from "@/hooks/useHistory";
+import { AlertTriangle, CalendarOff, CheckCircle2 } from "lucide-react";
 
 export function UserHistory({ history }: { history: HistoryItem[] }) {
-    return (
-        <div className="bg-slate-50 p-4 xl:p-8 flex flex-col text-gray-800 rounded-xl  max-h-[36rem] xl:max-h-[24rem] xl:m-auto">
-            <h2 className="exo2-font text-center  xl:text-5xl text-2xl font-semibold">
-                Estadísticas de limpieza
-            </h2>
-            {history && history.length > 0 && (
-                <>
-                    <h2 className="xl:text-2xl text-1xl mt-12 lato-font font-normal">
-                        Semanas sin limpiar: <span id="week-count">{history.length}</span>
-                    </h2>
-                    <div className="mt-6 overflow-y-auto bg-amber-200 p-3 xl:p-2 rounded-xl gap-1 items-center justify-center shadow-md flex flex-col">
-                        {history.map((item: HistoryItem) => (
-                            <div
-                                key={item.week}
-                                className="flex gap-4 bg-rose-500 text-white shadow-md rounded-xl px-4 py-1"
-                            >
-                                <span className="font-bold text-md xl:text-xl">
-                                    {item.week}
-                                </span>
-                                <span
-                                    key={item.week}
-                                    className="font-semibold text-md xl:text-xl border-l-3 pl-2  border-white"
-                                >
-                                    {item.task}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </>
-            )}
-            {history && history.length === 0 && (
-                <h2 className="text-emerald-400 font-bold text-md xl:text-xl text-center mt-4">
-                    Todo limpio por aquí!
-                </h2>
-            )}
+  const hasDebts = history.length > 0;
+
+  return (
+    <div className="w-full max-w-2xl mx-auto animate-in slide-in-from-bottom-5 duration-700 delay-100">
+      {/* Cabecera de la Sección */}
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+          {hasDebts ? (
+            <>
+              <AlertTriangle className="text-status-pending" />
+              <span>Historial de Pendientes</span>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="text-status-success" />
+              <span>Historial Impecable</span>
+            </>
+          )}
+        </h3>
+        <p className="text-sm text-gray-400 mt-1">
+          {hasDebts
+            ? `Tienes ${history.length} semanas marcadas como no completadas.`
+            : "¡Todo al día! No debes ninguna tarea."}
+        </p>
+      </div>
+
+      {/* Lista de Deudas (Glassmorphism) */}
+      {hasDebts ? (
+        <div className="flex flex-col gap-3">
+          {history.map((item, index) => (
+            <div
+              key={item.week}
+              className="group flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="flex items-center  gap-4">
+                <div className="p-2 bg-rose-500/20 rounded-full text-rose-400 group-hover:scale-110 transition-transform">
+                  <CalendarOff size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-bold text-gray-200">{item.task}</span>
+                  <span className="text-xs text-gray-500 uppercase tracking-wider">
+                    Semana {item.week}
+                  </span>
+                </div>
+              </div>
+
+              {/* Badge visual */}
+              <span className="ml-1 px-0.5 md:px-3 py-0.5 md:py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                No hecho
+              </span>
+            </div>
+          ))}
         </div>
-    );
+      ) : (
+        // Estado Vacío (Empty State)
+        <div className="flex flex-col items-center justify-center py-12 bg-white/5 border border-white/10 border-dashed rounded-2xl">
+          <div className="w-16 h-16 bg-gradient-to-tr from-emerald-500/20 to-transparent rounded-full flex items-center justify-center mb-4">
+            <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+          </div>
+          <p className="text-gray-300 font-medium">Estás libre de pecado</p>
+          <p className="text-xs text-gray-500">Sigue así, máquina.</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 --- src/components/WeekDisplay.tsx ---
@@ -850,144 +879,158 @@ export function AuthLayout({ children }: { children: ReactNode }) {
 --- src/components/layout/Navbar.tsx ---
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Menu, LogOut, User, LayoutDashboard, Sparkles } from "lucide-react";
+import {
+  Menu,
+  LogOut,
+  User,
+  LayoutDashboard,
+  Sparkles,
+  Trophy,
+} from "lucide-react";
 import { useAuth } from "@/auth/AuthProvider";
 import { auth } from "@/auth/auth";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/button";
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { CLEANERS } from "@/config/cleaners";
 
 export function Navbar() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { user } = useAuth();
-    const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
-    // Obtener datos del perfil actual
-    const userProfile = Object.values(CLEANERS).find(
-        (c) => c.email === user?.email,
-    );
+  // Obtener datos del perfil actual
+  const userProfile = Object.values(CLEANERS).find(
+    (c) => c.email === user?.email,
+  );
 
-    const handleNavigation = (path: string) => {
-        navigate(path);
-        setIsOpen(false);
-    };
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsOpen(false);
+  };
 
-    const handleLogout = async () => {
-        await auth.logout();
-        setIsOpen(false);
-    };
+  const handleLogout = async () => {
+    await auth.logout();
+    setIsOpen(false);
+  };
 
-    const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path;
 
-    return (
-        <nav className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/20 backdrop-blur-xl">
-            <div className="container flex h-16 items-center justify-between px-4 md:px-8 mx-auto">
-                {/* LOGO / TÍTULO */}
-                <div
-                    className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => navigate("/")}
-                >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary">
-                        <Sparkles className="h-5 w-5" />
-                    </div>
-                    <span className="text-lg font-bold tracking-tight text-white">
-                        Clean<span className="text-primary">App</span>
-                    </span>
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/20 backdrop-blur-xl">
+      <div className="container flex h-16 items-center justify-between px-4 md:px-8 mx-auto">
+        {/* LOGO / TÍTULO */}
+        <div
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate("/")}
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <span className="text-lg font-bold tracking-tight text-white">
+            Clean<span className="text-primary">App</span>
+          </span>
+        </div>
+
+        {/* MENÚ DERECHA */}
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/10"
+            >
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Abrir menú</span>
+            </Button>
+          </SheetTrigger>
+
+          <SheetContent
+            side="right"
+            className="w-[300px] border-l border-white/10 bg-zinc-950/95 backdrop-blur-xl text-white"
+          >
+            <SheetHeader>
+              <SheetTitle className="text-left text-white flex items-center gap-3 pb-6 border-b border-white/10">
+                {userProfile && (
+                  <Avatar
+                    src={userProfile.avatarUrl}
+                    alt="Profile"
+                    size="sm"
+                    colorTheme={userProfile.themeColor}
+                  />
+                )}
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold">
+                    {userProfile?.name || "Usuario"}
+                  </span>
+                  <span className="text-xs text-muted-foreground font-normal">
+                    Menú Principal
+                  </span>
                 </div>
+              </SheetTitle>
+            </SheetHeader>
 
-                {/* MENÚ DERECHA */}
-                <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                    <SheetTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-white hover:bg-white/10"
-                        >
-                            <Menu className="h-6 w-6" />
-                            <span className="sr-only">Abrir menú</span>
-                        </Button>
-                    </SheetTrigger>
-
-                    <SheetContent
-                        side="right"
-                        className="w-[300px] border-l border-white/10 bg-zinc-950/95 backdrop-blur-xl text-white"
-                    >
-                        <SheetHeader>
-                            <SheetTitle className="text-left text-white flex items-center gap-3 pb-6 border-b border-white/10">
-                                {userProfile && (
-                                    <Avatar
-                                        src={userProfile.avatarUrl}
-                                        alt="Profile"
-                                        size="sm"
-                                        colorTheme={userProfile.themeColor}
-                                    />
-                                )}
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold">
-                                        {userProfile?.name || "Usuario"}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground font-normal">
-                                        Menú Principal
-                                    </span>
-                                </div>
-                            </SheetTitle>
-                        </SheetHeader>
-
-                        <div className="flex flex-col gap-2 mt-6">
-                            <NavButton
-                                icon={<LayoutDashboard size={20} />}
-                                label="Panel Principal"
-                                active={isActive("/")}
-                                onClick={() => handleNavigation("/")}
-                            />
-                            <NavButton
-                                icon={<User size={20} />}
-                                label="Mi Perfil"
-                                active={isActive("/profile")}
-                                onClick={() => handleNavigation("/profile")}
-                            />
-                        </div>
-
-                        <div className="mt-auto pt-6 border-t border-white/10 absolute bottom-6 w-[calc(100%-3rem)]">
-                            <Button
-                                variant="destructive"
-                                className="w-full gap-2 font-semibold"
-                                onClick={handleLogout}
-                            >
-                                <LogOut size={18} />
-                                Cerrar Sesión
-                            </Button>
-                        </div>
-                    </SheetContent>
-                </Sheet>
+            <div className="flex flex-col gap-2 mt-6">
+              <NavButton
+                icon={<LayoutDashboard size={20} />}
+                label="Panel Principal"
+                active={isActive("/")}
+                onClick={() => handleNavigation("/")}
+              />
+              <NavButton
+                icon={<Trophy size={20} />}
+                label="Ranking"
+                active={isActive("/ranking")}
+                onClick={() => handleNavigation("/ranking")}
+              />
+              <NavButton
+                icon={<User size={20} />}
+                label="Mi Perfil"
+                active={isActive("/profile")}
+                onClick={() => handleNavigation("/profile")}
+              />
             </div>
-        </nav>
-    );
+
+            <div className="mt-auto pt-6 border-t border-white/10 absolute bottom-6 w-[calc(100%-3rem)]">
+              <Button
+                variant="destructive"
+                className="w-full gap-2 font-semibold"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} />
+                Cerrar Sesión
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </nav>
+  );
 }
 
 // Botón auxiliar para el menú
 function NavButton({ icon, label, onClick, active }: any) {
-    return (
-        <button
-            onClick={onClick}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
-            ${active
-                    ? "bg-primary/20 text-primary border border-primary/20"
-                    : "text-zinc-400 hover:text-white hover:bg-white/5"
-                }`}
-        >
-            {icon}
-            {label}
-        </button>
-    );
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
+            ${
+              active
+                ? "bg-primary/20 text-primary border border-primary/20"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+    >
+      {icon}
+      {label}
+    </button>
+  );
 }
 
 --- src/components/loader/Loader.css ---
@@ -1025,10 +1068,10 @@ function NavButton({ icon, label, onClick, active }: any) {
 
 
 --- src/components/loader/Loader.tsx ---
-import "./Loader.css"
+import "./Loader.css";
 
 export default function Loader() {
-    return <span className="loader" />
+  return <span className="loader" />;
 }
 
 --- src/components/ui/Avatar.tsx ---
@@ -1337,100 +1380,6 @@ function Button({
 }
 
 export { Button, buttonVariants }
-
---- src/components/ui/card.tsx ---
-import * as React from "react"
-
-import { cn } from "@/lib/utils"
-
-function Card({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card"
-      className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-header"
-      className={cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
-      {...props}
-    />
-  )
-}
-
-function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-description"
-      className={cn("text-muted-foreground text-sm", className)}
-      {...props}
-    />
-  )
-}
-
-function CardAction({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-action"
-      className={cn(
-        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-content"
-      className={cn("px-6", className)}
-      {...props}
-    />
-  )
-}
-
-function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="card-footer"
-      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
-      {...props}
-    />
-  )
-}
-
-export {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardAction,
-  CardDescription,
-  CardContent,
-}
 
 --- src/components/ui/input.tsx ---
 import * as React from "react"
@@ -1754,160 +1703,6 @@ export const app = initializeApp(firebaseConfig)
 export const db = getDatabase(app)
 
 
---- src/firebase/initWeek.ts ---
-import { ref, set } from "firebase/database";
-import { getMonday, getWeekBounds, getWeekOfYear } from "@/utils/date";
-import { db } from "./firebase";
-import type { User } from "@/types/User";
-import { getCurrentWeekInstance, getCurrentWeekPath } from "./weekHistory";
-
-export async function initWeek(usuarios: User[]) {
-    const weekNumber = getWeekOfYear();
-    const monday = getMonday();
-    const week = getWeekBounds(monday);
-    const year = monday.getFullYear();
-
-    const currentWeekSnapshot = await getCurrentWeekInstance();
-    console.log(currentWeekSnapshot.key);
-
-    if (currentWeekSnapshot.exists()) return;
-
-    const parsedUsers = usuarios.reduce(
-        (acc, user) => {
-            acc[user.username] = {
-                task: user.task,
-                done: false,
-                date: "not done",
-                name: user.name,
-            };
-            return acc;
-        },
-        {} as Record<
-            string,
-            { task?: string; done: boolean; date: string; name: string }
-        >,
-    );
-    const currentWeekRef = ref(db, getCurrentWeekPath());
-    await set(currentWeekRef, {
-        year: year,
-        weekNumber: weekNumber,
-        week: week,
-        usuarios: parsedUsers,
-    });
-}
-
---- src/firebase/usersHistory.ts ---
-import { get, ref, remove, set } from "firebase/database";
-import { db } from "./firebase";
-import { cleanEmail } from "@/utils/users";
-import { getWeekBounds } from "@/utils/date";
-
-export async function addTaskNotDone(email: string, task: string) {
-    const currentWeekPath = getCurrentWeekUserHistoryPath(email);
-    const historyRef = ref(db, currentWeekPath);
-    const snapshot = await get(historyRef);
-
-    if (!snapshot.exists()) {
-        await set(historyRef, task);
-    }
-}
-
-export async function removeTaskNotDone(email: string) {
-    const currentWeekPath = getCurrentWeekUserHistoryPath(email);
-    const historyRef = ref(db, currentWeekPath);
-    const snapshot = await get(historyRef);
-
-    if (snapshot.exists()) {
-        await remove(historyRef);
-    }
-}
-
-function getCurrentWeekUserHistoryPath(email: string) {
-    const currentWeek = getWeekBounds().replaceAll("/", "_");
-    return `users/${cleanEmail(email)}/history/${currentWeek}`;
-}
-
---- src/firebase/weekHistory.ts ---
-import {
-    get,
-    limitToLast,
-    orderByKey,
-    query,
-    ref,
-    update,
-} from "firebase/database";
-import { db } from "./firebase";
-import { getPreciseDateString, getWeekBounds } from "@/utils/date";
-import { addTaskNotDone, removeTaskNotDone } from "./usersHistory";
-
-const root = "piso";
-
-export async function toggleDone(
-    userKey: string,
-    userEmail: string,
-    currentTask: string,
-) {
-    const currentWeekPath = getCurrentWeekPath();
-    const path = `${currentWeekPath}/usuarios/${userKey}`;
-    const userRef = ref(db, path);
-    const snapshot = await get(userRef);
-
-    if (!snapshot.exists()) {
-        console.error(`The user ${userKey} does not exist on database`);
-        return;
-    }
-
-    const user = snapshot.val();
-    const newStatus = !user.done;
-
-    const today = getPreciseDateString();
-    const newDate = newStatus ? today : "not done";
-
-    await update(userRef, { done: newStatus, fecha: newDate });
-
-    if (newStatus === false) {
-        await addTaskNotDone(userEmail, currentTask);
-    } else {
-        await removeTaskNotDone(userEmail);
-    }
-
-    return newStatus;
-}
-
-export function getCurrentWeekPath() {
-    const currentWeek = getWeekBounds().replaceAll("/", "_");
-    return `${root}/${currentWeek}/`;
-}
-
-export async function getLastWeekId() {
-    const weeksRef = ref(db, "piso");
-    const q = query(weeksRef, orderByKey(), limitToLast(1));
-    const snapshot = await get(q);
-
-    if (snapshot.exists()) {
-        const data = snapshot.val();
-        const [id] = Object.keys(data);
-        return id;
-    }
-
-    return null;
-}
-
-export function getCurrentWeekUserPath(user: string) {
-    const currentWeek = getCurrentWeekPath();
-    console.log(currentWeek);
-    return `${currentWeek}/usuarios/${user}`;
-}
-
-export async function getCurrentWeekInstance() {
-    const currentWeek = getCurrentWeekPath();
-
-    const userRef = ref(db, currentWeek);
-    const snapshot = await get(userRef);
-
-    return snapshot;
-}
-
 --- src/hooks/useDashboardData.tsx ---
 import { useEffect, useState } from "react";
 import { onValue, ref, off } from "firebase/database";
@@ -1975,48 +1770,106 @@ export function useDashboardData() {
   return { cleaners: data, loading };
 }
 
---- src/hooks/useFirebaseValue.tsx ---
-import { useEffect, useState } from "react";
-import { db } from "@/firebase/firebase";
-import { off, onValue, ref } from "firebase/database";
-
-export const useFirebaseValue = (path: string) => {
-    const [value, setValue] = useState<any | null>(null);
-
-    useEffect(() => {
-        if (path === "") return;
-        const dbRef = ref(db, path);
-
-        const unsubscribe = onValue(dbRef, (snapshot) => {
-            setValue(snapshot.val());
-        });
-
-        return () => off(dbRef, "value", unsubscribe);
-    }, [path]);
-
-    return value;
-};
-
 --- src/hooks/useHistory.tsx ---
-import { cleanEmail } from "@/utils/users";
-import { useFirebaseValue } from "./useFirebaseValue";
+import { useEffect, useState } from "react";
+import { onValue, ref, off } from "firebase/database";
+import { db } from "@/firebase/firebase";
+import { DB_PATHS } from "@/services/paths";
 
 export type HistoryItem = {
-    week: string;
-    task: string;
+  week: string;
+  task: string;
 };
-export function useHistory(email: string) {
-    const path = `users/${cleanEmail(email)}/history`;
-    const data = useFirebaseValue(path);
 
-    if (!data) return [];
+export function useHistory(email: string | undefined | null) {
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    const parsed: HistoryItem[] = Object.entries(data).map(([week, task]) => ({
-        week: week.replaceAll("_", "/"),
-        task: task as string,
-    }));
+  useEffect(() => {
+    // Si no hay email (ej: no logueado o cargando), no hacemos nada
+    if (!email) {
+      setLoading(false);
+      return;
+    }
 
-    return parsed;
+    // 1. Obtenemos la ruta centralizada (sin strings mágicos)
+    const path = DB_PATHS.userHistoryRoot(email);
+    const historyRef = ref(db, path);
+
+    // 2. Suscripción a Firebase
+    const unsubscribe = onValue(historyRef, (snapshot) => {
+      const data = snapshot.val();
+
+      if (!data) {
+        setHistory([]);
+      } else {
+        // 3. Transformación de datos: { "12_05_2025": "Cocina" } -> Array
+        const parsed: HistoryItem[] = Object.entries(data).map(
+          ([key, task]) => ({
+            // Revertimos el sanitizado: "12_05" -> "12/05"
+            week: key.replaceAll("_", "/"),
+            task: task as string,
+          }),
+        );
+
+        // Opcional: Ordenar por fecha (string) descendente si quisieras
+        setHistory(parsed.reverse());
+      }
+      setLoading(false);
+    });
+
+    // Cleanup al desmontar
+    return () => off(historyRef, "value", unsubscribe);
+  }, [email]);
+
+  return { history, loading };
+}
+
+--- src/hooks/useRanking.tsx ---
+import { useEffect, useState } from "react";
+import { onValue, ref } from "firebase/database"; // Quitamos 'off'
+import { db } from "@/firebase/firebase";
+import { DB_PATHS } from "@/services/paths";
+import { CLEANERS } from "@/config/cleaners";
+import type { CleanerProfile } from "@/types/domain";
+
+export interface RankingItem extends CleanerProfile {
+  score: number;
+}
+
+export function useRanking() {
+  const [ranking, setRanking] = useState<RankingItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const statsRef = ref(db, DB_PATHS.allStats());
+
+    // onValue devuelve la función 'unsubscribe' directamente
+    const unsubscribe = onValue(statsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+
+      const parsedRanking: RankingItem[] = Object.values(CLEANERS).map(
+        (cleaner) => {
+          const userStats = data[cleaner.username];
+          return {
+            ...cleaner,
+            score: userStats?.completedTasks || 0,
+          };
+        },
+      );
+
+      // Ordenar: Más puntos primero
+      parsedRanking.sort((a, b) => b.score - a.score);
+
+      setRanking(parsedRanking);
+      setLoading(false);
+    });
+
+    // Limpieza correcta
+    return () => unsubscribe();
+  }, []);
+
+  return { ranking, loading };
 }
 
 --- src/hooks/useTitle.tsx ---
@@ -2199,84 +2052,82 @@ import { useTitle } from "@/hooks/useTitle";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { toggleTaskCompletion } from "@/services/cleaningService";
 import { TaskCard } from "@/components/ui/TaskCard";
-import { WeekDisplay } from "@/components/WeekDisplay";
-import { Loader2 } from "lucide-react"; // Icono spinner
+import { WeekDisplay } from "@/components/WeekDisplay"; // Asumo que mantenemos este por ahora
+import Loader from "@/components/loader/Loader";
 
 export default function Dashboard() {
-    useTitle("Panel - CleanApp");
-    const { user } = useAuth();
+  useTitle("Panel - CleanApp");
+  const { user } = useAuth();
 
-    // Hook inteligente: Datos y Loading
-    const { cleaners, loading } = useDashboardData();
+  // Hook inteligente: Datos y Loading centralizados
+  const { cleaners, loading } = useDashboardData();
 
-    const handleToggle = async (cleanerId: string, taskName: string) => {
-        const cleanerToUpdate = cleaners.find((c) => c.username === cleanerId);
-        if (!cleanerToUpdate) return;
+  const handleToggle = async (cleanerId: string, taskName: string) => {
+    // Buscamos el objeto completo del cleaner para pasarlo al servicio
+    const cleanerToUpdate = cleaners.find((c) => c.username === cleanerId);
+    if (!cleanerToUpdate) return;
 
-        try {
-            await toggleTaskCompletion(cleanerToUpdate, taskName);
-        } catch (error) {
-            console.error("Error al actualizar tarea:", error);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex h-[80vh] w-full items-center justify-center">
-                {/* Spinner animado en lugar de Skeleton */}
-                <div className="flex flex-col items-center gap-4 text-muted-foreground animate-pulse">
-                    <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                    <span className="text-sm font-medium tracking-widest uppercase">
-                        Cargando Tareas...
-                    </span>
-                </div>
-            </div>
-        );
+    try {
+      await toggleTaskCompletion(cleanerToUpdate, taskName);
+    } catch (error) {
+      console.error("Error al actualizar tarea:", error);
+      // Aquí podrías añadir un toast de error si quisieras
     }
+  };
 
-    // Ordenar usuarios: Primero YO, luego el resto (mejora UX)
-    const sortedCleaners = [...cleaners].sort((a, b) => {
-        if (a.email === user?.email) return -1;
-        if (b.email === user?.email) return 1;
-        return 0;
-    });
-
+  if (loading) {
     return (
-        <div className="flex flex-col gap-10 pb-10">
-            {/* Header flotante */}
-            <header className="mt-4 md:mt-8 animate-in slide-in-from-top-5 duration-700 fade-in">
-                <WeekDisplay />
-            </header>
-
-            {/* Grid de Tarjetas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {sortedCleaners.map((cleaner, index) => {
-                    const isMyCard = user?.email === cleaner.email;
-
-                    return (
-                        <div
-                            key={cleaner.id}
-                            className="animate-in slide-in-from-bottom-5 duration-500 fade-in fill-mode-backwards"
-                            style={{ animationDelay: `${index * 100}ms` }} // Animación escalonada
-                        >
-                            <TaskCard
-                                name={cleaner.name}
-                                avatarUrl={cleaner.avatarUrl}
-                                taskName={cleaner.taskName}
-                                isDone={cleaner.isDone}
-                                completedAt={cleaner.completedAt}
-                                colorTheme={cleaner.themeColor}
-                                isInteractive={isMyCard}
-                                onToggle={() =>
-                                    handleToggle(cleaner.username, cleaner.taskName)
-                                }
-                            />
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
+      <div className="flex h-[80vh] w-full items-center justify-center flex-col gap-4">
+        <Loader />
+        <p className="text-gray-500 animate-pulse">Cargando tareas...</p>
+      </div>
     );
+  }
+
+  // Ordenar usuarios: Primero YO (el usuario logueado), luego el resto.
+  // Mejora UX: No tengo que buscarme en la lista.
+  const sortedCleaners = [...cleaners].sort((a, b) => {
+    if (a.email === user?.email) return -1;
+    if (b.email === user?.email) return 1;
+    return 0;
+  });
+
+  return (
+    <div className="flex flex-col gap-10 pb-10">
+      {/* Header: Información de la semana */}
+      <header className="mt-8 flex justify-center animate-in fade-in slide-in-from-top-4 duration-700">
+        <WeekDisplay />
+      </header>
+
+      {/* Grid de Tarjetas */}
+      {/* Mobile-first: 1 columna, luego 2, luego 4 en pantallas grandes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4 md:px-0">
+        {sortedCleaners.map((cleaner) => {
+          const isMyCard = user?.email === cleaner.email;
+
+          return (
+            <div
+              key={cleaner.id}
+              className="animate-in fade-in zoom-in-95 duration-500"
+            >
+              <TaskCard
+                name={cleaner.name}
+                avatarUrl={cleaner.avatarUrl}
+                taskName={cleaner.taskName}
+                isDone={cleaner.isDone}
+                completedAt={cleaner.completedAt}
+                colorTheme={cleaner.themeColor}
+                isInteractive={isMyCard}
+                onToggle={() =>
+                  handleToggle(cleaner.username, cleaner.taskName)
+                }
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 --- src/pages/Login.tsx ---
@@ -2362,83 +2213,281 @@ import { auth } from "@/auth/auth";
 import { useTitle } from "@/hooks/useTitle";
 import { useHistory } from "@/hooks/useHistory";
 import { Avatar } from "@/components/ui/Avatar";
-import { PrimaryButton } from "@/components/Buttons";
 import { UserHistory } from "@/components/UserHistory";
 import { CLEANERS } from "@/config/cleaners";
+import { ArrowLeft, LogOut, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button"; // Usamos el botón de shadcn si lo tienes, o un HTML button simple
 
 export function ProfilePage() {
-    const { user } = useAuth();
-    const navigate = useNavigate();
-    useTitle("Perfil - Tareas de Limpieza");
+  useTitle("Mi Perfil - CleanApp");
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-    // Obtener datos del usuario desde la nueva config centralizada
-    const userProfile = Object.values(CLEANERS).find(
-        (c) => c.email === user?.email,
-    );
+  // 1. Obtener datos centralizados
+  const userProfile = Object.values(CLEANERS).find(
+    (c) => c.email === user?.email,
+  );
 
-    // El hook useHistory aún funciona con el email, lo mantenemos por ahora
-    const history = useHistory(user?.email || "");
+  // 2. Hook de historial
+  const { history, loading: historyLoading } = useHistory(user?.email);
 
-    const handleBack = () => navigate(-1);
+  const handleBack = () => navigate(-1);
+  const handleLogout = async () => {
+    await auth.logout();
+    navigate("/login");
+  };
 
-    if (!userProfile) {
-        return (
-            <div className="text-white text-center mt-20">
-                Usuario no encontrado en la configuración.
-            </div>
-        );
-    }
-
+  if (!userProfile) {
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-emerald-700 via-cyan-800 to-green-800 flex flex-col">
-            {/* Header / Nav */}
-            <div className="flex justify-end p-4 bg-black/20 backdrop-blur-sm">
-                <PrimaryButton
-                    label="Atrás"
-                    onButtonClick={handleBack}
-                    className="shadow-lg"
-                />
+      <div className="flex h-screen items-center justify-center text-gray-400">
+        Usuario no configurado en el sistema.
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-zinc-950 text-white flex flex-col animate-in fade-in duration-500">
+      {/* Navbar Simple */}
+      <header className="sticky top-0 z-10 flex items-center justify-between p-4 md:px-8 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft size={20} />
+          <span className="text-sm font-medium">Volver</span>
+        </button>
+        <span className="text-sm font-bold text-gray-500 tracking-widest uppercase">
+          Perfil
+        </span>
+      </header>
+
+      <main className="flex-1 container max-w-3xl mx-auto px-4 py-8 flex flex-col gap-8">
+        {/* Tarjeta de Identidad */}
+        <section className="relative overflow-hidden rounded-3xl bg-zinc-900 border border-white/5 p-6 md:p-10 text-center shadow-2xl">
+          {/* Fondo decorativo sutil */}
+          <div
+            className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-${userProfile.themeColor}-900/20 to-transparent opacity-50`}
+          />
+
+          <div className="relative z-10 flex flex-col items-center gap-4">
+            <div className="group relative">
+              {/* Glow effect detrás del avatar */}
+              <div
+                className={`absolute -inset-1 rounded-full blur-xl opacity-20 bg-${userProfile.themeColor}-500 group-hover:opacity-40 transition-opacity duration-500`}
+              />
+
+              <Avatar
+                size="xl"
+                src={userProfile.avatarUrl}
+                alt={userProfile.name}
+                colorTheme={userProfile.themeColor}
+                className="relative shadow-2xl"
+              />
             </div>
 
-            <main className="flex-1 flex flex-col items-center px-4 gap-8 py-10 max-w-4xl mx-auto w-full">
-                {/* Info Usuario */}
-                <div className="flex flex-col md:flex-row items-center gap-6 bg-white/10 p-6 rounded-2xl backdrop-blur-md shadow-xl border border-white/20 w-full justify-center">
-                    <Avatar
-                        size="xl"
-                        src={userProfile.avatarUrl}
-                        alt={userProfile.name}
-                        colorTheme={userProfile.themeColor}
-                    />
-                    <div className="text-center md:text-left text-white space-y-2">
-                        <h2 className="font-bold text-3xl md:text-4xl">
-                            {userProfile.name}
-                        </h2>
-                        <p className="font-light text-lg opacity-90">{userProfile.email}</p>
-                    </div>
-                </div>
+            <div className="space-y-1">
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+                {userProfile.name}
+              </h1>
+              <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+                <Mail size={14} />
+                <span>{userProfile.email}</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
-                {/* Historial */}
-                <div className="w-full">
-                    {history && <UserHistory history={history} />}
-                </div>
+        {/* Sección Historial */}
+        <section>
+          {historyLoading ? (
+            <div className="text-center text-gray-500 py-10 animate-pulse">
+              Cargando historial...
+            </div>
+          ) : (
+            <UserHistory history={history} />
+          )}
+        </section>
 
-                {/* Logout */}
-                <div className="mt-auto pb-8">
-                    <button
-                        className="font-bold bg-rose-600 text-white rounded-full px-8 py-3 text-lg 
-                        hover:bg-rose-700 hover:scale-105 hover:shadow-lg transition-all duration-200"
-                        onClick={() => auth.logout()}
-                    >
-                        Cerrar Sesión
-                    </button>
-                </div>
-            </main>
+        {/* Zona de Peligro / Logout */}
+        <div className="mt-auto pt-8 flex justify-center">
+          <Button
+            variant="destructive"
+            onClick={handleLogout}
+            className="gap-2 font-semibold shadow-lg shadow-red-900/20"
+          >
+            <LogOut size={16} />
+            Cerrar Sesión
+          </Button>
         </div>
+      </main>
+    </div>
+  );
+}
+
+--- src/pages/Ranking.tsx ---
+import { useRanking, type RankingItem } from "@/hooks/useRanking";
+import { useTitle } from "@/hooks/useTitle";
+import { Avatar } from "@/components/ui/Avatar";
+import { Trophy } from "lucide-react";
+
+export default function RankingPage() {
+  useTitle("Ranking de Limpieza");
+  const { ranking, loading } = useRanking();
+
+  if (loading) {
+    return (
+      <div className="p-10 text-center text-white animate-pulse">
+        Calculando puntuaciones...
+      </div>
     );
+  }
+
+  const [top1, top2, top3, ...rest] = ranking;
+
+  return (
+    <div className="flex flex-col gap-8 pb-10">
+      {/* Header */}
+      <header className="mt-8 text-center space-y-2 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div className="inline-flex p-3 rounded-full bg-yellow-500/20 text-yellow-400 mb-2 ring-1 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+          <Trophy size={32} />
+        </div>
+        <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-600">
+          Salón de la Fama
+        </h1>
+        <p className="text-gray-400">
+          ¿Quién es el verdadero señor de la limpieza?
+        </p>
+      </header>
+
+      {/* PODIO */}
+      <div className="flex justify-center items-end gap-4 md:gap-8 mt-12 px-4 h-[300px]">
+        {/* TOP 2 */}
+        {top2 && <PodiumStep user={top2} place={2} delay={200} />}
+
+        {/* TOP 1 */}
+        {top1 && <PodiumStep user={top1} place={1} delay={0} />}
+
+        {/* TOP 3 */}
+        {top3 && <PodiumStep user={top3} place={3} delay={400} />}
+      </div>
+
+      {/* Resto de mortales */}
+      <div className="max-w-2xl mx-auto w-full px-4 flex flex-col gap-3">
+        {rest.map((user, index) => (
+          <div
+            key={user.id}
+            className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 animate-in slide-in-from-bottom-2 fade-in fill-mode-backwards"
+            style={{ animationDelay: `${(index + 3) * 100}ms` }}
+          >
+            <span className="font-bold text-gray-500 w-6 text-center">
+              #{index + 4}
+            </span>
+            <Avatar
+              src={user.avatarUrl}
+              alt={user.name}
+              size="sm"
+              colorTheme={user.themeColor}
+            />
+            <div className="flex-1">
+              <h3 className="font-bold text-white">{user.name}</h3>
+            </div>
+            <div className="text-right">
+              <span className="block text-xl font-bold text-white">
+                {user.score}
+              </span>
+              <span className="text-xs text-gray-500">ptos</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Subcomponente para el Podio
+function PodiumStep({
+  user,
+  place,
+  delay,
+}: {
+  user: RankingItem;
+  place: number;
+  delay: number;
+}) {
+  // Configuración visual según posición
+  const config = {
+    1: {
+      height: "h-[220px]",
+      color: "bg-gradient-to-t from-yellow-600/80 to-yellow-400/20",
+      border: "border-yellow-500",
+      iconColor: "text-yellow-400",
+    },
+    2: {
+      height: "h-[160px]",
+      color: "bg-gradient-to-t from-slate-600/80 to-slate-400/20",
+      border: "border-slate-400",
+      iconColor: "text-slate-300",
+    },
+    3: {
+      height: "h-[130px]",
+      color: "bg-gradient-to-t from-orange-800/80 to-orange-600/20",
+      border: "border-orange-600",
+      iconColor: "text-orange-400",
+    },
+  }[place];
+
+  return (
+    <div
+      className={`flex flex-col items-center justify-end w-1/3 max-w-[140px] animate-in slide-in-from-bottom-10 fade-in duration-1000 fill-mode-backwards`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      {/* Avatar flotante */}
+      <div className="mb-[-20px] z-10 relative">
+        <Avatar
+          src={user.avatarUrl}
+          alt={user.name}
+          size={place === 1 ? "lg" : "md"}
+          colorTheme={user.themeColor}
+          className="shadow-2xl"
+        />
+        {place === 1 && (
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce">
+            <Trophy
+              className="text-yellow-400 fill-yellow-400 drop-shadow-lg"
+              size={24}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Barra del podio */}
+      <div
+        className={`w-full ${config?.height} ${config?.color} rounded-t-xl border-t border-x ${config?.border} backdrop-blur-md flex flex-col items-center justify-start pt-8 relative overflow-hidden group`}
+      >
+        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+        <h3 className="font-bold text-white text-lg md:text-xl truncate max-w-full px-2">
+          {user.name}
+        </h3>
+        <div className="flex items-baseline gap-1 mt-1">
+          <span className="text-2xl md:text-3xl font-black text-white">
+            {user.score}
+          </span>
+          <span className="text-xs text-gray-300">ptos</span>
+        </div>
+
+        <div
+          className={`mt-auto mb-4 font-black text-4xl opacity-20 ${config?.iconColor}`}
+        >
+          {place}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 --- src/services/cleaningService.ts ---
-import { get, ref, set, update } from "firebase/database";
+import { get, ref, set, update, increment } from "firebase/database";
 import { db } from "@/firebase/firebase";
 import { DB_PATHS } from "./paths";
 import {
@@ -2497,7 +2546,7 @@ export async function toggleTaskCompletion(
   cleaner: CleanerProfile,
   currentTaskName: string,
 ): Promise<boolean> {
-  // 1. Obtener estado actual para invertirlo
+  // 1. Obtener estado actual
   const userPath = DB_PATHS.weeklyUserStatus(cleaner.username);
   const userRef = ref(db, userPath);
   const snapshot = await get(userRef);
@@ -2509,28 +2558,28 @@ export async function toggleTaskCompletion(
   const newStatus = !data.done;
   const newDate = newStatus ? getPreciseDateString() : "not done";
 
-  // 2. Preparar actualizaciones atómicas (Multi-path update)
+  // 2. Preparar actualizaciones atómicas
   const updates: Record<string, any> = {};
 
-  // Actualizar estado semanal
+  // A) Actualizar semana actual
   updates[`${userPath}/done`] = newStatus;
   updates[`${userPath}/fecha`] = newDate;
 
-  // Actualizar historial personal (users/{email}/history)
-  // Lógica: Si NO está hecho, se añade al "Muro de la vergüenza". Si se hace, se quita.
+  // B) Actualizar historial de pendientes
   const currentWeekId = getWeekBounds();
   const historyPath = DB_PATHS.userHistoryItem(cleaner.email, currentWeekId);
 
   if (newStatus === false) {
-    // Si desmarcó (ahora es pendiente), añadimos al historial
     updates[historyPath] = currentTaskName;
   } else {
-    // Si marcó como hecho, borramos del historial
-    // En Firebase RTDB, setear a null borra la clave
     updates[historyPath] = null;
   }
 
-  // Ejecutamos todas las escrituras a la vez
+  // Si completa (true) sumamos 1, si desmarca (false) restamos 1
+  const statsPath = DB_PATHS.userStats(cleaner.username);
+  updates[`${statsPath}/completedTasks`] = increment(newStatus ? 1 : -1);
+
+  // Ejecutamos TODO a la vez
   await update(ref(db), updates);
 
   return newStatus;
@@ -2540,6 +2589,7 @@ export async function toggleTaskCompletion(
 import { getWeekBounds } from "@/utils/date";
 import { cleanEmail } from "@/utils/users";
 
+const ROOT_STATS = "stats"; // Nuevo nodo raíz
 const ROOT_APP = "piso";
 const ROOT_USERS = "users";
 
@@ -2567,31 +2617,44 @@ export const DB_PATHS = {
   userHistoryRoot: (email: string) => {
     return `${ROOT_USERS}/${cleanEmail(email)}/history`;
   },
+  userStats: (username: string) => {
+    return `${ROOT_STATS}/${username}`;
+  },
+
+  // Ruta para leer todos los stats (para la lista del ranking)
+  allStats: () => {
+    return `${ROOT_STATS}`;
+  },
 };
 
 --- src/types/domain.ts ---
 export type BrandColor = "blue" | "green" | "purple" | "yellow" | "pink";
 
 export interface CleanerProfile {
-    id: string;
-    username: string;
-    email: string;
-    name: string;
-    avatarUrl: string;
-    themeColor: BrandColor;
+  id: string;
+  username: string;
+  email: string;
+  name: string;
+  avatarUrl: string;
+  themeColor: BrandColor;
 }
 
 export interface WeeklyTaskState {
-    taskName: string;
-    isDone: boolean;
-    completedAt: string | null;
+  taskName: string;
+  isDone: boolean;
+  completedAt: string | null;
 }
 
-export interface CleanerWithTask extends CleanerProfile, WeeklyTaskState { }
+export interface CleanerWithTask extends CleanerProfile, WeeklyTaskState {}
 
 export interface HistoryRecord {
-    weekId: string; // ej: "23-05-2025/30-05-2025"
-    taskName: string;
+  weekId: string; // ej: "23-05-2025/30-05-2025"
+  taskName: string;
+}
+
+export interface UserStats {
+  username: string;
+  completedTasks: number;
 }
 
 --- src/utils/date.ts ---
