@@ -1,65 +1,47 @@
 import { useEffect, useState } from "react";
-import { onValue, ref, off } from "firebase/database";
+import { onValue, ref } from "firebase/database";
 import { db } from "@/firebase/firebase";
-import { DB_PATHS } from "@/services/paths";
-import { initializeCurrentWeekIfNeeded } from "@/services/cleaningService";
 import { CLEANER_LIST } from "@/config/cleaners";
 import type { CleanerWithTask } from "@/types/domain";
 
-export function useDashboardData() {
+export function useDashboardData(targetWeekId: string) {
+  // <--- Recibe weekId
   const [data, setData] = useState<CleanerWithTask[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-    const weekPath = DB_PATHS.currentWeekRoot();
+    const sanitize = (str: string) =>
+      str.replaceAll("/", "_").replaceAll(".", "_");
+    const weekPath = `piso/${sanitize(targetWeekId)}`;
+
     const weekRef = ref(db, weekPath);
+    setLoading(true);
 
-    const initAndSubscribe = async () => {
-      try {
-        // 1. Asegurar que la semana existe (Check-then-Act)
-        await initializeCurrentWeekIfNeeded();
+    const unsubscribe = onValue(weekRef, (snapshot) => {
+      const weekData = snapshot.val();
 
-        // 2. Suscribirse a los cambios
-        onValue(weekRef, (snapshot) => {
-          if (!mounted) return;
-          const weekData = snapshot.val();
+      // Simplificación: Si no hay datos, asumimos que no se hizo nada.
+      const usersMap = weekData?.usuarios || {};
 
-          if (!weekData || !weekData.usuarios) {
-            setLoading(false);
-            return;
-          }
+      const mergedData: CleanerWithTask[] = CLEANER_LIST.map((cleaner) => {
+        const userState = usersMap[cleaner.username];
 
-          // 3. Mapear datos: Configuración Estática + Estado Dinámico
-          const mergedData: CleanerWithTask[] = CLEANER_LIST.map((cleaner) => {
-            // Datos crudos de Firebase para este usuario
-            const userState = weekData.usuarios[cleaner.username];
+        return {
+          ...cleaner,
+          taskName: userState?.task || "N/A", // Si no existe semana, no mostramos tarea errónea
+          isDone: userState?.done || false,
+          completedAt:
+            userState?.fecha === "not done" ? null : userState?.fecha,
+          isLate: userState?.isLate || false, // <--- Mapeamos isLate
+        };
+      });
 
-            return {
-              ...cleaner, // Datos base (id, nombre, avatar...)
-              taskName: userState?.task || "Sin tarea",
-              isDone: userState?.done || false,
-              completedAt:
-                userState?.fecha === "not done" ? null : userState?.fecha,
-            };
-          });
+      setData(mergedData);
+      setLoading(false);
+    });
 
-          setData(mergedData);
-          setLoading(false);
-        });
-      } catch (error) {
-        console.error("Error inicializando dashboard:", error);
-        if (mounted) setLoading(false);
-      }
-    };
-
-    initAndSubscribe();
-
-    return () => {
-      mounted = false;
-      off(weekRef); // Desuscribirse al desmontar
-    };
-  }, []);
+    return () => unsubscribe();
+  }, [targetWeekId]); // Se recarga cuando cambia la semana
 
   return { cleaners: data, loading };
 }
