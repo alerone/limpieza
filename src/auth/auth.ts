@@ -1,31 +1,38 @@
-import { signOut, getAuth, GoogleAuthProvider, signInWithPopup, type User, signInWithRedirect, getRedirectResult } from 'firebase/auth'
-import { app } from '../firebase/firebase'
-import { isIOSSafari } from '../utils/isIOS'
+import {
+    signOut,
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    type User,
+    signInWithRedirect,
+    getRedirectResult,
+} from "firebase/auth";
+import { app } from "@/firebase/firebase";
+import { isIOSSafari } from "@/utils/isIOS";
 
-
-export const authInstance = getAuth(app)
-const provider = new GoogleAuthProvider()
+export const authInstance = getAuth(app);
+const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
-    prompt: "select_account"
-})
+    prompt: "select_account",
+});
 
 export const auth = {
     async login(callback: (user: User) => void) {
         if (isIOSSafari()) {
             try {
-                await signInWithRedirect(authInstance, provider)
+                await signInWithRedirect(authInstance, provider);
             } catch (error) {
-                console.error("Error en signInWithRedirect:", error)
+                console.error("Error en signInWithRedirect:", error);
             }
         } else {
-            const result = await signInWithPopup(authInstance, provider)
-            callback(result.user)
+            const result = await signInWithPopup(authInstance, provider);
+            callback(result.user);
         }
     },
     async handleRedirectResult() {
         try {
             const result = await getRedirectResult(authInstance);
-            console.log("user", result)
+            console.log("user", result);
             if (result) {
                 const user = result.user;
                 console.log("Usuario:", user);
@@ -35,11 +42,7 @@ export const auth = {
         }
     },
     async logout(callback?: () => void) {
-        await signOut(authInstance)
-        if (callback)
-            callback()
-    }
-}
-
-
-
+        await signOut(authInstance);
+        if (callback) callback();
+    },
+};

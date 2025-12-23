@@ -1,12 +1,12 @@
-import { useGetUsersInfo } from "../hooks/useGetUsersInfo";
-import { WeekDisplay } from "../components/WeekDisplay";
-import { getImageByEmail, type User } from "../types/User";
-import { CardGrid } from "../components/CardGrid";
-import { toggleDone } from "../firebase/weekHistory";
-import { Icon } from "../components/Icon";
-import { useAuth } from "../auth/AuthProvider";
+import { useGetUsersInfo } from "@/hooks/useGetUsersInfo";
+import { WeekDisplay } from "@/components/WeekDisplay";
+import { getImageByEmail, type User } from "@/types/User";
+import { CardGrid } from "@/components/CardGrid";
+import { toggleDone } from "@/firebase/weekHistory";
+import { Icon } from "@/components/Icon";
+import { useAuth } from "@/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
-import { useTitle } from "../hooks/useTitle";
+import { useTitle } from "@/hooks/useTitle";
 
 function Dashboard() {
     const users = useGetUsersInfo();

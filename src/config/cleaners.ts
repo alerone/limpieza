@@ -1,4 +1,4 @@
-import type { CleanerProfile } from "../types/domain";
+import type { CleanerProfile } from "@/types/domain";
 import { ENV } from "./env";
 
 export const CLEANERS: Record<string, CleanerProfile> = {

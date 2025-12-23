@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getCurrentWeekUserPath } from "../firebase/weekHistory";
-import { useFirebaseValue } from "../hooks/useFirebaseValue";
-import type { User } from "../types/User";
+import { getCurrentWeekUserPath } from "@/firebase/weekHistory";
+import { useFirebaseValue } from "@/hooks/useFirebaseValue";
+import type { User } from "@/types/User";
 import { Icon } from "./Icon";
 
 type CardProps = {

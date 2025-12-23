@@ -1,4 +1,5 @@
 import { getWeekBounds } from "@/utils/date";
+import { cleanEmail } from "@/utils/users";
 
 const ROOT_APP = "piso";
 const ROOT_USERS = "users";

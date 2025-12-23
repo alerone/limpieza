@@ -7,7 +7,7 @@ import {
     update,
 } from "firebase/database";
 import { db } from "./firebase";
-import { getPreciseDateString, getWeekBounds } from "../utils/date";
+import { getPreciseDateString, getWeekBounds } from "@/utils/date";
 import { addTaskNotDone, removeTaskNotDone } from "./usersHistory";
 
 const root = "piso";

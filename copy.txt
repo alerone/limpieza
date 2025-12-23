@@ -1,5 +1,6 @@
 --- Project Directories ---
 .
+├── App.css
 ├── README.md
 ├── copy.txt
 ├── eslint.config.js
@@ -57,6 +58,8 @@
 │   │   ├── Login.tsx
 │   │   └── Profile.tsx
 │   ├── services
+│   │   ├── cleaningService.ts
+│   │   └── paths.ts
 │   ├── types
 │   │   ├── User.ts
 │   │   └── domain.ts
@@ -72,6 +75,8 @@
 └── vite.config.ts
 
 --- Project Files ---
+--- App.css ---
+
 --- README.md ---
 # React + TypeScript + Vite
 
@@ -208,7 +213,7 @@ export default tseslint.config([
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5174",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -339,32 +344,32 @@ import { ProfilePage } from "./pages/Profile";
 import { useTitle } from "./hooks/useTitle";
 
 function App() {
-    useTitle("Tareas de Limpieza");
-    return (
-        <BrowserRouter>
-            <AuthProvider>
-                <Routes>
-                    <Route path="login" element={<LoginPage />} />
-                    <Route
-                        path="/"
-                        element={
-                            <ProtectedRoute>
-                                <Dashboard />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="profile"
-                        element={
-                            <ProtectedRoute>
-                                <ProfilePage />
-                            </ProtectedRoute>
-                        }
-                    />
-                </Routes>
-            </AuthProvider>
-        </BrowserRouter>
-    );
+  useTitle("Tareas de Limpieza");
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
 export default App;
@@ -1220,16 +1225,16 @@ button:focus-visible {
 }
 
 --- src/main.tsx ---
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.tsx";
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+createRoot(document.getElementById("root")!).render(
+  // <StrictMode>
+  <App />,
+  // </StrictMode>,
+);
 
 --- src/pages/Dashboard.tsx ---
 import { useGetUsersInfo } from "../hooks/useGetUsersInfo";
@@ -1362,6 +1367,136 @@ export function ProfilePage() {
         </div>
     )
 }
+
+--- src/services/cleaningService.ts ---
+import { get, ref, set, update } from "firebase/database";
+import { db } from "../firebase/firebase";
+import { DB_PATHS } from "./paths";
+import {
+  getPreciseDateString,
+  getWeekBounds,
+  getWeekOfYear,
+} from "../utils/date";
+import { getTaskForUser } from "../utils/taskRotation";
+import { CLEANER_LIST } from "../config/cleaners";
+import type { CleanerProfile } from "../types/domain";
+
+/**
+ * Inicializa la semana en la DB si no existe.
+ * Implementa el patrón "Check-then-Act" de forma atómica.
+ */
+export async function initializeCurrentWeekIfNeeded(): Promise<void> {
+  const weekPath = DB_PATHS.currentWeekRoot();
+  const weekRef = ref(db, weekPath);
+
+  const snapshot = await get(weekRef);
+  if (snapshot.exists()) return; // Ya existe, no hacemos nada.
+
+  // Datos para inicializar
+  const weekNumber = getWeekOfYear();
+  const weekBounds = getWeekBounds();
+
+  // Construimos el estado inicial de cada usuario
+  const initialUsersState = CLEANER_LIST.reduce(
+    (acc, cleaner) => {
+      acc[cleaner.username] = {
+        name: cleaner.name,
+        task: getTaskForUser(cleaner.username, weekNumber),
+        done: false,
+        fecha: "not done",
+      };
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
+
+  console.info(`📅 Inicializando semana ${weekBounds}...`);
+
+  await set(weekRef, {
+    year: new Date().getFullYear(),
+    weekNumber,
+    week: weekBounds,
+    usuarios: initialUsersState,
+  });
+}
+
+/**
+ * Alterna el estado de una tarea (Hecho/Pendiente)
+ * y actualiza el historial personal del usuario simultáneamente.
+ */
+export async function toggleTaskCompletion(
+  cleaner: CleanerProfile,
+  currentTaskName: string,
+): Promise<boolean> {
+  // 1. Obtener estado actual
+  const userPath = DB_PATHS.weeklyUserStatus(cleaner.username);
+  const userRef = ref(db, userPath);
+  const snapshot = await get(userRef);
+
+  if (!snapshot.exists())
+    throw new Error("Usuario no encontrado en la semana actual");
+
+  const data = snapshot.val();
+  const newStatus = !data.done;
+  const newDate = newStatus ? getPreciseDateString() : "not done";
+
+  // 2. Preparar actualizaciones atómicas
+  const updates: Record<string, any> = {};
+
+  // Actualizar estado semanal
+  updates[`${userPath}/done`] = newStatus;
+  updates[`${userPath}/fecha`] = newDate;
+
+  // Actualizar historial personal (users/{email}/history)
+  const currentWeekId = getWeekBounds();
+  const historyPath = DB_PATHS.userHistoryItem(cleaner.email, currentWeekId);
+
+  if (newStatus === false) {
+    // Si desmarcó, añadimos al historial de "pendientes/fallos"
+    // (Siguiendo tu lógica original: addTaskNotDone)
+    updates[historyPath] = currentTaskName;
+  } else {
+    // Si marcó como hecho, borramos la "marca de vergüenza" del historial
+    // (Siguiendo tu lógica original: removeTaskNotDone)
+    // NOTA: Para borrar en un update múltiple se usa null
+    updates[historyPath] = null;
+  }
+
+  await update(ref(db), updates);
+  return newStatus;
+}
+
+--- src/services/paths.ts ---
+import { getWeekBounds } from "@/utils/date";
+
+const ROOT_APP = "piso";
+const ROOT_USERS = "users";
+
+// Helper para sanitizar strings en claves de Firebase
+const sanitize = (str: string) => str.replaceAll("/", "_").replaceAll(".", "_");
+
+export const DB_PATHS = {
+    // Ruta: piso/12_05_2025-18_05_2025/
+    currentWeekRoot: () => {
+        const weekId = sanitize(getWeekBounds());
+        return `${ROOT_APP}/${weekId}`;
+    },
+
+    // Ruta: piso/12_05_2025-18_05_2025/usuarios/rubius
+    weeklyUserStatus: (username: string) => {
+        return `${DB_PATHS.currentWeekRoot()}/usuarios/${username}`;
+    },
+
+    // Ruta: users/rubius/history/12_05_2025-18_05_2025
+    userHistoryItem: (email: string, weekId: string) => {
+        return `${ROOT_USERS}/${cleanEmail(email)}/history/${sanitize(weekId)}`;
+    },
+
+    // Ruta: users/rubius/history
+    userHistoryRoot: (email: string) => {
+        return `${ROOT_USERS}/${cleanEmail(email)}/history`;
+    },
+};
 
 --- src/types/User.ts ---
 import type { Color } from "../components/Icon"
@@ -1547,9 +1682,9 @@ const TASKS_POOL = ["Cocina", "Cocina", "Salón", "Pasillo"];
  * Función pura: Inputs -> Outputs. Sin hooks.
  */
 export function getTasksForWeek(weekNumber: number): string[] {
-    const shift = weekNumber % 4;
-    // Rotación simple del array
-    return [...TASKS_POOL.slice(4 - shift), ...TASKS_POOL.slice(0, 4 - shift)];
+  const shift = weekNumber % 4;
+  // Rotación simple del array
+  return [...TASKS_POOL.slice(4 - shift), ...TASKS_POOL.slice(0, 4 - shift)];
 }
 
 /**
@@ -1557,19 +1692,19 @@ export function getTasksForWeek(weekNumber: number): string[] {
  * Asumimos el orden: Rubius, Alvaro, Victor, Alex
  */
 export function getTaskForUser(username: string, weekNumber: number): string {
-    const tasks = getTasksForWeek(weekNumber);
-    switch (username) {
-        case "rubius":
-            return tasks[0];
-        case "alvaro":
-            return tasks[1];
-        case "victor":
-            return tasks[2];
-        case "alex":
-            return tasks[3];
-        default:
-            return "Sin tarea";
-    }
+  const tasks = getTasksForWeek(weekNumber);
+  switch (username) {
+    case "rubius":
+      return tasks[0];
+    case "alvaro":
+      return tasks[1];
+    case "victor":
+      return tasks[2];
+    case "alex":
+      return tasks[3];
+    default:
+      return "Sin tarea";
+  }
 }
 
 --- src/utils/users.ts ---
@@ -1649,8 +1784,14 @@ export function cleanEmail(email: string) {
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss()],
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
+        },
+    },
 });
 
