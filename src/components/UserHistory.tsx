@@ -37,7 +37,7 @@ export function UserHistory({ history }: { history: HistoryItem[] }) {
               className="group flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center  gap-4">
                 <div className="p-2 bg-rose-500/20 rounded-full text-rose-400 group-hover:scale-110 transition-transform">
                   <CalendarOff size={20} />
                 </div>
@@ -50,8 +50,8 @@ export function UserHistory({ history }: { history: HistoryItem[] }) {
               </div>
 
               {/* Badge visual */}
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                No realizada
+              <span className="ml-1 px-0.5 md:px-3 py-0.5 md:py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                No hecho
               </span>
             </div>
           ))}
