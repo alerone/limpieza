@@ -33,9 +33,12 @@
 │   │   ├── ProtectedRoute.tsx
 │   │   ├── UserHistory.tsx
 │   │   ├── WeekDisplay.tsx
-│   │   └── loader
-│   │       ├── Loader.css
-│   │       └── Loader.tsx
+│   │   ├── loader
+│   │   │   ├── Loader.css
+│   │   │   └── Loader.tsx
+│   │   └── ui
+│   │       ├── Avatar.tsx
+│   │       └── TaskCard.tsx
 │   ├── config
 │   │   ├── cleaners.ts
 │   │   └── env.ts
@@ -46,6 +49,7 @@
 │   │   ├── usersHistory.ts
 │   │   └── weekHistory.ts
 │   ├── hooks
+│   │   ├── useDashboardData.tsx
 │   │   ├── useFirebaseValue.tsx
 │   │   ├── useGetUsersInfo.tsx
 │   │   ├── useHistory.tsx
@@ -434,34 +438,41 @@ export function useAuth() {
 
 
 --- src/auth/auth.ts ---
-import { signOut, getAuth, GoogleAuthProvider, signInWithPopup, type User, signInWithRedirect, getRedirectResult } from 'firebase/auth'
-import { app } from '../firebase/firebase'
-import { isIOSSafari } from '../utils/isIOS'
+import {
+    signOut,
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    type User,
+    signInWithRedirect,
+    getRedirectResult,
+} from "firebase/auth";
+import { app } from "@/firebase/firebase";
+import { isIOSSafari } from "@/utils/isIOS";
 
-
-export const authInstance = getAuth(app)
-const provider = new GoogleAuthProvider()
+export const authInstance = getAuth(app);
+const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
-    prompt: "select_account"
-})
+    prompt: "select_account",
+});
 
 export const auth = {
     async login(callback: (user: User) => void) {
         if (isIOSSafari()) {
             try {
-                await signInWithRedirect(authInstance, provider)
+                await signInWithRedirect(authInstance, provider);
             } catch (error) {
-                console.error("Error en signInWithRedirect:", error)
+                console.error("Error en signInWithRedirect:", error);
             }
         } else {
-            const result = await signInWithPopup(authInstance, provider)
-            callback(result.user)
+            const result = await signInWithPopup(authInstance, provider);
+            callback(result.user);
         }
     },
     async handleRedirectResult() {
         try {
             const result = await getRedirectResult(authInstance);
-            console.log("user", result)
+            console.log("user", result);
             if (result) {
                 const user = result.user;
                 console.log("Usuario:", user);
@@ -471,14 +482,10 @@ export const auth = {
         }
     },
     async logout(callback?: () => void) {
-        await signOut(authInstance)
-        if (callback)
-            callback()
-    }
-}
-
-
-
+        await signOut(authInstance);
+        if (callback) callback();
+    },
+};
 
 --- src/auth/isAdmin.ts ---
 export function isAdmin(email: string) {
@@ -527,9 +534,9 @@ export function PrimaryButton({ label, className, onButtonClick }: ButtonProps) 
 
 --- src/components/Card.tsx ---
 import { useEffect, useState } from "react";
-import { getCurrentWeekUserPath } from "../firebase/weekHistory";
-import { useFirebaseValue } from "../hooks/useFirebaseValue";
-import type { User } from "../types/User";
+import { getCurrentWeekUserPath } from "@/firebase/weekHistory";
+import { useFirebaseValue } from "@/hooks/useFirebaseValue";
+import type { User } from "@/types/User";
 import { Icon } from "./Icon";
 
 type CardProps = {
@@ -592,28 +599,33 @@ export function Card({ user, hasPermission, onClickTask }: CardProps) {
 }
 
 --- src/components/CardGrid.tsx ---
-import { isAdmin } from "../auth/isAdmin"
-import type { User } from "../types/User"
-import { Card } from "./Card"
+import { isAdmin } from "@/auth/isAdmin";
+import type { User } from "@/types/User";
+import { Card } from "./Card";
 
 type CardGridProps = {
-    users: User[],
-    currentEmail: string,
-    onToggleCompleted: (user: User) => void
-}
-export function CardGrid({ users, currentEmail, onToggleCompleted }: CardGridProps) {
+    users: User[];
+    currentEmail: string;
+    onToggleCompleted: (user: User) => void;
+};
+export function CardGrid({
+    users,
+    currentEmail,
+    onToggleCompleted,
+}: CardGridProps) {
     return (
         <div className="w-screen grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 px-8 h-auto xl:min-h-[300px]">
-            {users.length > 0 && users.map((user) => (
-                <Card
-                    key={user.id}
-                    onClickTask={() => onToggleCompleted(user)}
-                    user={user}
-                    hasPermission={currentEmail === user.email || isAdmin(currentEmail)}
-                />
-            ))}
+            {users.length > 0 &&
+                users.map((user) => (
+                    <Card
+                        key={user.id}
+                        onClickTask={() => onToggleCompleted(user)}
+                        user={user}
+                        hasPermission={currentEmail === user.email || isAdmin(currentEmail)}
+                    />
+                ))}
         </div>
-    )
+    );
 }
 
 --- src/components/Icon.tsx ---
@@ -657,13 +669,13 @@ export function Icon({ image, onClick, color, size, className }: IconProps) {
 
 --- src/components/ProtectedRoute.tsx ---
 import type { ReactNode } from "react";
-import { useAuth } from "../auth/AuthProvider";
+import { useAuth } from "@/auth/AuthProvider";
 import { Navigate, useLocation } from "react-router-dom";
 import Loader from "./loader/Loader";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
-    const { user, initializing } = useAuth()
-    const location = useLocation()
+    const { user, initializing } = useAuth();
+    const location = useLocation();
 
     if (initializing) {
         return (
@@ -671,69 +683,86 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
                 <h1 className="text-center font-bold text-white">Loading...</h1>
                 <Loader />
             </div>
-        )
+        );
     }
 
     if (!user) {
-        return <Navigate to={"/login"} state={{ from: location }} replace />
+        return <Navigate to={"/login"} state={{ from: location }} replace />;
     }
 
-    return children
+    return children;
 }
 
-
 --- src/components/UserHistory.tsx ---
-import type { HistoryItem } from "../hooks/useHistory";
+import type { HistoryItem } from "@/hooks/useHistory";
 
 export function UserHistory({ history }: { history: HistoryItem[] }) {
     return (
         <div className="bg-slate-50 p-4 xl:p-8 flex flex-col text-gray-800 rounded-xl  max-h-[36rem] xl:max-h-[24rem] xl:m-auto">
-            <h2 className="exo2-font text-center  xl:text-5xl text-2xl font-semibold">Estadísticas de limpieza</h2>
-            {history && history.length > 0 &&
+            <h2 className="exo2-font text-center  xl:text-5xl text-2xl font-semibold">
+                Estadísticas de limpieza
+            </h2>
+            {history && history.length > 0 && (
                 <>
-                    <h2 className="xl:text-2xl text-1xl mt-12 lato-font font-normal">Semanas sin limpiar: <span id="week-count">{history.length}</span></h2>
+                    <h2 className="xl:text-2xl text-1xl mt-12 lato-font font-normal">
+                        Semanas sin limpiar: <span id="week-count">{history.length}</span>
+                    </h2>
                     <div className="mt-6 overflow-y-auto bg-amber-200 p-3 xl:p-2 rounded-xl gap-1 items-center justify-center shadow-md flex flex-col">
                         {history.map((item: HistoryItem) => (
-                            <div key={item.week} className="flex gap-4 bg-rose-500 text-white shadow-md rounded-xl px-4 py-1">
-                                <span className="font-bold text-md xl:text-xl">{item.week}</span>
-                                <span key={item.week} className="font-semibold text-md xl:text-xl border-l-3 pl-2  border-white">{item.task}</span>
+                            <div
+                                key={item.week}
+                                className="flex gap-4 bg-rose-500 text-white shadow-md rounded-xl px-4 py-1"
+                            >
+                                <span className="font-bold text-md xl:text-xl">
+                                    {item.week}
+                                </span>
+                                <span
+                                    key={item.week}
+                                    className="font-semibold text-md xl:text-xl border-l-3 pl-2  border-white"
+                                >
+                                    {item.task}
+                                </span>
                             </div>
                         ))}
                     </div>
                 </>
-            }
+            )}
             {history && history.length === 0 && (
-                <h2 className="text-emerald-400 font-bold text-md xl:text-xl text-center mt-4">Todo limpio por aquí!</h2>
+                <h2 className="text-emerald-400 font-bold text-md xl:text-xl text-center mt-4">
+                    Todo limpio por aquí!
+                </h2>
             )}
         </div>
-    )
+    );
 }
 
 --- src/components/WeekDisplay.tsx ---
-import { useWeekTracker } from "../hooks/useWeekTracker";
+import { useWeekTracker } from "@/hooks/useWeekTracker";
 
 export function WeekDisplay({ className }: { className?: string }) {
-    const week = useWeekTracker()
+    const week = useWeekTracker();
 
-    const weekBounds = week.split("-")
+    const weekBounds = week.split("-");
 
-    const monday = weekBounds[0]
-    const sunday = weekBounds[1]
+    const monday = weekBounds[0];
+    const sunday = weekBounds[1];
 
     return (
-        <div className={`max-w-md mx-auto p-3 px-6 rounded-2xl shadow-lg
+        <div
+            className={`max-w-md mx-auto p-3 px-6 rounded-2xl shadow-lg
                     bg-gradient-to-r from-gray-300 via-gray-200 to-gray-400
                     border border-gray-400
                     text-gray-800
-                    hover:shadow-xl transition-shadow duration-300 ${className}`}>
+                    hover:shadow-xl transition-shadow duration-300 ${className}`}
+        >
             <p className="font-bold text-2xl text-center">
                 Semana: <br />
                 {monday} <br />
                 {sunday} <br />
             </p>
         </div>
-    )
-} 
+    );
+}
 
 --- src/components/loader/Loader.css ---
 .loader {
@@ -776,8 +805,134 @@ export default function Loader() {
     return <span className="loader" />
 }
 
+--- src/components/ui/Avatar.tsx ---
+import type { BrandColor } from "@/types/domain";
+
+interface AvatarProps {
+  src: string;
+  alt: string;
+  colorTheme?: BrandColor;
+  size?: "sm" | "md" | "lg" | "xl";
+  className?: string;
+  onClick?: () => void;
+}
+
+// Mapeo de tamaños a clases Tailwind
+const SIZES = {
+  sm: "w-12 h-12 border-2",
+  md: "w-20 h-20 border-4",
+  lg: "w-32 h-32 border-4",
+  xl: "w-48 h-48 border-8",
+};
+
+// Mapeo de colores a bordes (usando nombres de colores Tailwind estándar)
+const BORDERS: Record<BrandColor, string> = {
+  blue: "border-sky-400",
+  green: "border-emerald-400",
+  purple: "border-purple-400",
+  yellow: "border-yellow-400",
+  pink: "border-pink-400",
+};
+
+export function Avatar({
+  src,
+  alt,
+  colorTheme = "blue",
+  size = "md",
+  className = "",
+  onClick,
+}: AvatarProps) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onClick={onClick}
+      className={`
+        rounded-full object-cover transition-transform duration-200
+        ${SIZES[size]} 
+        ${BORDERS[colorTheme]}
+        ${onClick ? "cursor-pointer hover:scale-105" : ""}
+        ${className}
+      `}
+    />
+  );
+}
+
+--- src/components/ui/TaskCard.tsx ---
+import { Avatar } from "./Avatar";
+import type { BrandColor } from "@/types/domain";
+
+interface TaskCardProps {
+  name: string;
+  avatarUrl: string;
+  taskName: string;
+  isDone: boolean;
+  completedAt?: string | null;
+  colorTheme: BrandColor;
+  isInteractive: boolean;
+  onToggle: () => void;
+}
+
+export function TaskCard({
+  name,
+  avatarUrl,
+  taskName,
+  isDone,
+  completedAt,
+  colorTheme,
+  isInteractive,
+  onToggle,
+}: TaskCardProps) {
+  // Clases dinámicas basadas en estado
+  const statusBadgeClass = isDone
+    ? "bg-emerald-500 text-white"
+    : "bg-rose-500 text-white";
+
+  return (
+    <article
+      onClick={isInteractive ? onToggle : undefined}
+      className={`
+        flex flex-col justify-between p-4 rounded-xl shadow-lg transition-all duration-300 bg-white
+        ${isInteractive ? "cursor-pointer hover:scale-105 hover:shadow-xl" : "opacity-90"}
+      `}
+    >
+      {/* Cabecera Usuario */}
+      <div className="flex flex-col items-center gap-2">
+        <Avatar src={avatarUrl} alt={name} colorTheme={colorTheme} size="md" />
+        <h2 className="text-xl font-bold text-gray-800">{name}</h2>
+        <div className="h-1 w-full bg-gray-200 rounded-full" />
+      </div>
+
+      {/* Cuerpo Tarea */}
+      <div className="mt-4 flex flex-col gap-3">
+        <div
+          className={`
+           p-2 rounded-lg text-center font-bold text-xl shadow-sm text-gray-800
+           bg-gradient-to-r from-orange-200 to-orange-300
+        `}
+        >
+          {taskName}
+        </div>
+
+        <div className="flex justify-end items-center gap-2">
+          {isDone && completedAt && (
+            <span className="text-xs font-semibold text-emerald-600">
+              {completedAt}
+            </span>
+          )}
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-bold shadow-md ${statusBadgeClass}`}
+          >
+            {isDone ? "Hecho" : "Pendiente"}
+          </span>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 --- src/config/cleaners.ts ---
-import type { CleanerProfile } from "../types/domain";
+import type { CleanerProfile } from "@/types/domain";
 import { ENV } from "./env";
 
 export const CLEANERS: Record<string, CleanerProfile> = {
@@ -883,70 +1038,76 @@ export const db = getDatabase(app)
 
 
 --- src/firebase/initWeek.ts ---
-import { ref, set } from "firebase/database"
-import { getMonday, getWeekBounds, getWeekOfYear } from "../utils/date"
-import { db } from "./firebase"
-import type { User } from "../types/User"
-import { getCurrentWeekInstance, getCurrentWeekPath } from "./weekHistory"
+import { ref, set } from "firebase/database";
+import { getMonday, getWeekBounds, getWeekOfYear } from "@/utils/date";
+import { db } from "./firebase";
+import type { User } from "@/types/User";
+import { getCurrentWeekInstance, getCurrentWeekPath } from "./weekHistory";
 
 export async function initWeek(usuarios: User[]) {
-    const weekNumber = getWeekOfYear()
-    const monday = getMonday()
-    const week = getWeekBounds(monday)
-    const year = monday.getFullYear()
+    const weekNumber = getWeekOfYear();
+    const monday = getMonday();
+    const week = getWeekBounds(monday);
+    const year = monday.getFullYear();
 
-    const currentWeekSnapshot = await getCurrentWeekInstance()
-    console.log(currentWeekSnapshot.key)
+    const currentWeekSnapshot = await getCurrentWeekInstance();
+    console.log(currentWeekSnapshot.key);
 
-    if (currentWeekSnapshot.exists()) return
+    if (currentWeekSnapshot.exists()) return;
 
-    const parsedUsers = usuarios.reduce((acc, user) => {
-        acc[user.username] = {
-            task: user.task,
-            done: false,
-            date: "not done",
-            name: user.name,
-        }
-        return acc
-    }, {} as Record<string, { task?: string; done: boolean; date: string; name: string }>)
-    const currentWeekRef = ref(db, getCurrentWeekPath())
+    const parsedUsers = usuarios.reduce(
+        (acc, user) => {
+            acc[user.username] = {
+                task: user.task,
+                done: false,
+                date: "not done",
+                name: user.name,
+            };
+            return acc;
+        },
+        {} as Record<
+            string,
+            { task?: string; done: boolean; date: string; name: string }
+        >,
+    );
+    const currentWeekRef = ref(db, getCurrentWeekPath());
     await set(currentWeekRef, {
         year: year,
         weekNumber: weekNumber,
         week: week,
         usuarios: parsedUsers,
-    })
+    });
 }
 
 --- src/firebase/usersHistory.ts ---
-import { get, ref, remove, set } from "firebase/database"
-import { db } from "./firebase"
-import { cleanEmail } from "../utils/users"
-import { getWeekBounds } from "../utils/date"
+import { get, ref, remove, set } from "firebase/database";
+import { db } from "./firebase";
+import { cleanEmail } from "@/utils/users";
+import { getWeekBounds } from "@/utils/date";
 
 export async function addTaskNotDone(email: string, task: string) {
-    const currentWeekPath = getCurrentWeekUserHistoryPath(email)
-    const historyRef = ref(db, currentWeekPath)
-    const snapshot = await get(historyRef)
+    const currentWeekPath = getCurrentWeekUserHistoryPath(email);
+    const historyRef = ref(db, currentWeekPath);
+    const snapshot = await get(historyRef);
 
     if (!snapshot.exists()) {
-        await set(historyRef, task)
+        await set(historyRef, task);
     }
 }
 
 export async function removeTaskNotDone(email: string) {
-    const currentWeekPath = getCurrentWeekUserHistoryPath(email)
-    const historyRef = ref(db, currentWeekPath)
-    const snapshot = await get(historyRef)
+    const currentWeekPath = getCurrentWeekUserHistoryPath(email);
+    const historyRef = ref(db, currentWeekPath);
+    const snapshot = await get(historyRef);
 
     if (snapshot.exists()) {
-        await remove(historyRef)
+        await remove(historyRef);
     }
 }
 
 function getCurrentWeekUserHistoryPath(email: string) {
-    const currentWeek = getWeekBounds().replaceAll("/", "_")
-    return `users/${cleanEmail(email)}/history/${currentWeek}`
+    const currentWeek = getWeekBounds().replaceAll("/", "_");
+    return `users/${cleanEmail(email)}/history/${currentWeek}`;
 }
 
 --- src/firebase/weekHistory.ts ---
@@ -959,7 +1120,7 @@ import {
     update,
 } from "firebase/database";
 import { db } from "./firebase";
-import { getPreciseDateString, getWeekBounds } from "../utils/date";
+import { getPreciseDateString, getWeekBounds } from "@/utils/date";
 import { addTaskNotDone, removeTaskNotDone } from "./usersHistory";
 
 const root = "piso";
@@ -1030,34 +1191,101 @@ export async function getCurrentWeekInstance() {
     return snapshot;
 }
 
+--- src/hooks/useDashboardData.tsx ---
+import { useEffect, useState } from "react";
+import { onValue, ref, off } from "firebase/database";
+import { db } from "@/firebase/firebase";
+import { DB_PATHS } from "@/services/paths";
+import { initializeCurrentWeekIfNeeded } from "@/services/cleaningService";
+import { CLEANER_LIST } from "@/config/cleaners";
+import type { CleanerWithTask } from "@/types/domain";
+
+export function useDashboardData() {
+  const [data, setData] = useState<CleanerWithTask[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const weekPath = DB_PATHS.currentWeekRoot();
+    const weekRef = ref(db, weekPath);
+
+    const initAndSubscribe = async () => {
+      try {
+        // 1. Asegurar que la semana existe (Check-then-Act)
+        await initializeCurrentWeekIfNeeded();
+
+        // 2. Suscribirse a los cambios
+        onValue(weekRef, (snapshot) => {
+          if (!mounted) return;
+          const weekData = snapshot.val();
+
+          if (!weekData || !weekData.usuarios) {
+            setLoading(false);
+            return;
+          }
+
+          // 3. Mapear datos: Configuración Estática + Estado Dinámico
+          const mergedData: CleanerWithTask[] = CLEANER_LIST.map((cleaner) => {
+            // Datos crudos de Firebase para este usuario
+            const userState = weekData.usuarios[cleaner.username];
+
+            return {
+              ...cleaner, // Datos base (id, nombre, avatar...)
+              taskName: userState?.task || "Sin tarea",
+              isDone: userState?.done || false,
+              completedAt:
+                userState?.fecha === "not done" ? null : userState?.fecha,
+            };
+          });
+
+          setData(mergedData);
+          setLoading(false);
+        });
+      } catch (error) {
+        console.error("Error inicializando dashboard:", error);
+        if (mounted) setLoading(false);
+      }
+    };
+
+    initAndSubscribe();
+
+    return () => {
+      mounted = false;
+      off(weekRef); // Desuscribirse al desmontar
+    };
+  }, []);
+
+  return { cleaners: data, loading };
+}
+
 --- src/hooks/useFirebaseValue.tsx ---
-import { useEffect, useState } from "react"
-import { db } from "../firebase/firebase"
-import { off, onValue, ref } from "firebase/database"
+import { useEffect, useState } from "react";
+import { db } from "@/firebase/firebase";
+import { off, onValue, ref } from "firebase/database";
 
 export const useFirebaseValue = (path: string) => {
-    const [value, setValue] = useState<any | null>(null)
+    const [value, setValue] = useState<any | null>(null);
 
     useEffect(() => {
-        if (path === "") return
-        const dbRef = ref(db, path)
+        if (path === "") return;
+        const dbRef = ref(db, path);
 
         const unsubscribe = onValue(dbRef, (snapshot) => {
-            setValue(snapshot.val())
-        })
+            setValue(snapshot.val());
+        });
 
-        return () => off(dbRef, "value", unsubscribe)
-    }, [path])
+        return () => off(dbRef, "value", unsubscribe);
+    }, [path]);
 
-    return value
-}
+    return value;
+};
 
 --- src/hooks/useGetUsersInfo.tsx ---
 import { useEffect, useMemo } from "react";
-import { getWeekOfYear } from "../utils/date";
+import { getWeekOfYear } from "@/utils/date";
 import { useWeekTracker } from "./useWeekTracker";
-import { baseUsers } from "../types/User";
-import { initWeek } from "../firebase/initWeek";
+import { baseUsers } from "@/types/User";
+import { initWeek } from "@/firebase/initWeek";
 
 const TASKS_BASE = ["Cocina", "Cocina", "Salón", "Pasillo"];
 
@@ -1100,25 +1328,25 @@ export function useGetUsersInfo() {
 }
 
 --- src/hooks/useHistory.tsx ---
-import { cleanEmail } from "../utils/users";
+import { cleanEmail } from "@/utils/users";
 import { useFirebaseValue } from "./useFirebaseValue";
 
 export type HistoryItem = {
-    week: string,
-    task: string
-}
+    week: string;
+    task: string;
+};
 export function useHistory(email: string) {
-    const path = `users/${cleanEmail(email)}/history`
-    const data = useFirebaseValue(path)
+    const path = `users/${cleanEmail(email)}/history`;
+    const data = useFirebaseValue(path);
 
-    if (!data) return []
+    if (!data) return [];
 
     const parsed: HistoryItem[] = Object.entries(data).map(([week, task]) => ({
         week: week.replaceAll("_", "/"),
-        task: task as string
-    }))
+        task: task as string,
+    }));
 
-    return parsed
+    return parsed;
 }
 
 --- src/hooks/useTitle.tsx ---
@@ -1132,22 +1360,25 @@ export function useTitle(title: string) {
 
 --- src/hooks/useWeekTracker.tsx ---
 import { useEffect, useState } from "react";
-import { getWeekBounds } from "../utils/date";
+import { getWeekBounds } from "@/utils/date";
 
 export function useWeekTracker() {
-    const [week, setWeek] = useState(getWeekBounds())
+    const [week, setWeek] = useState(getWeekBounds());
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            const currentWeek = getWeekBounds()
-            if (currentWeek != week) {
-                setWeek(currentWeek)
-            }
-            return () => clearInterval(interval)
-        }, 5 * 60 * 1000)
-    }, [week])
+        const interval = setInterval(
+            () => {
+                const currentWeek = getWeekBounds();
+                if (currentWeek != week) {
+                    setWeek(currentWeek);
+                }
+                return () => clearInterval(interval);
+            },
+            5 * 60 * 1000,
+        );
+    }, [week]);
 
-    return week
+    return week;
 }
 
 --- src/index.css ---
@@ -1237,15 +1468,15 @@ createRoot(document.getElementById("root")!).render(
 );
 
 --- src/pages/Dashboard.tsx ---
-import { useGetUsersInfo } from "../hooks/useGetUsersInfo";
-import { WeekDisplay } from "../components/WeekDisplay";
-import { getImageByEmail, type User } from "../types/User";
-import { CardGrid } from "../components/CardGrid";
-import { toggleDone } from "../firebase/weekHistory";
-import { Icon } from "../components/Icon";
-import { useAuth } from "../auth/AuthProvider";
+import { useGetUsersInfo } from "@/hooks/useGetUsersInfo";
+import { WeekDisplay } from "@/components/WeekDisplay";
+import { getImageByEmail, type User } from "@/types/User";
+import { CardGrid } from "@/components/CardGrid";
+import { toggleDone } from "@/firebase/weekHistory";
+import { Icon } from "@/components/Icon";
+import { useAuth } from "@/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
-import { useTitle } from "../hooks/useTitle";
+import { useTitle } from "@/hooks/useTitle";
 
 function Dashboard() {
     const users = useGetUsersInfo();
@@ -1281,105 +1512,112 @@ function Dashboard() {
 export default Dashboard;
 
 --- src/pages/Login.tsx ---
-import { useLocation, useNavigate } from "react-router-dom"
-import { LoginButton } from "../components/Buttons"
-import { auth } from "../auth/auth"
-import { useAuth } from "../auth/AuthProvider"
-import { useTitle } from "../hooks/useTitle"
+import { useLocation, useNavigate } from "react-router-dom";
+import { LoginButton } from "@/components/Buttons";
+import { auth } from "@/auth/auth";
+import { useAuth } from "@/auth/AuthProvider";
+import { useTitle } from "@/hooks/useTitle";
 
 function LoginPage() {
-    const navigate = useNavigate()
-    const location = useLocation()
-    const { user } = useAuth()
-    console.log("user-useAuth", user)
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { user } = useAuth();
+    console.log("user-useAuth", user);
 
-    const from = location.state?.from?.pathname || "/"
+    const from = location.state?.from?.pathname || "/";
 
-    useTitle("Iniciar Sesión - Tareas de Limpieza")
+    useTitle("Iniciar Sesión - Tareas de Limpieza");
 
     async function handleLogin() {
-        await auth.login(() => { console.log(from) })
-        navigate(from, { replace: true })
+        await auth.login(() => {
+            console.log(from);
+        });
+        navigate(from, { replace: true });
     }
 
     if (user) {
-        navigate(from, { replace: true })
+        navigate(from, { replace: true });
     }
 
     return (
-        <div className='justify-center p-6 bg-gradient-to-br from-indigo-900 via-gray-800 to-indigo-950 flex flex-col w-screen h-screen items-center gap-10 xl:gap-24'>
+        <div className="justify-center p-6 bg-gradient-to-br from-indigo-900 via-gray-800 to-indigo-950 flex flex-col w-screen h-screen items-center gap-10 xl:gap-24">
             <h1 className="font-semibold text-center">Limpieza del Piso</h1>
             <LoginButton onButtonClick={handleLogin} />
         </div>
-    )
+    );
 }
 
-export default LoginPage
-
+export default LoginPage;
 
 --- src/pages/Profile.tsx ---
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "../auth/AuthProvider"
-import { PrimaryButton } from "../components/Buttons"
-import { Icon } from "../components/Icon"
-import { getUserModelByEmail, type User } from "../types/User"
-import { UserHistory } from "../components/UserHistory"
-import { useHistory } from "../hooks/useHistory"
-import { auth } from "../auth/auth"
-import { useTitle } from "../hooks/useTitle"
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/auth/AuthProvider";
+import { PrimaryButton } from "@/components/Buttons";
+import { Icon } from "@/components/Icon";
+import { getUserModelByEmail, type User } from "@/types/User";
+import { UserHistory } from "@/components/UserHistory";
+import { useHistory } from "@/hooks/useHistory";
+import { auth } from "@/auth/auth";
+import { useTitle } from "@/hooks/useTitle";
 export function ProfilePage() {
-    const { user } = useAuth()
-    const navigate = useNavigate()
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
-    const userInstance: User = getUserModelByEmail(user.email)
-    const history = useHistory(user.email)
+    const userInstance: User = getUserModelByEmail(user.email);
+    const history = useHistory(user.email);
 
-    useTitle("Perfil - Tareas de Limpieza")
+    useTitle("Perfil - Tareas de Limpieza");
 
     const handleBack = () => {
-        navigate(-1)
-    }
+        navigate(-1);
+    };
 
     return (
-        <div className='bg-gradient-to-br from-emerald-700 via-cyan-800 to-green-800 flex flex-col w-screen h-screen'>
+        <div className="bg-gradient-to-br from-emerald-700 via-cyan-800 to-green-800 flex flex-col w-screen h-screen">
             <div className="flex flex-row justify-end p-2 bg-gradient-to-r from-emerald-500 to-emerald-700 mb-10">
                 <PrimaryButton label="Atrás" onButtonClick={handleBack} />
             </div>
             <main className="flex flex-col px-8 gap-10">
                 <div className="flex items-center gap-2 xl:gap-10">
-                    <Icon size="big" image={userInstance.image} color={userInstance.color} />
+                    <Icon
+                        size="big"
+                        image={userInstance.image}
+                        color={userInstance.color}
+                    />
                     <div className="flex flex-col justify-center">
-                        <h2 className="font-semibold text-lg xl:text-2xl">{userInstance.name}</h2>
+                        <h2 className="font-semibold text-lg xl:text-2xl">
+                            {userInstance.name}
+                        </h2>
                         <h2 className="font-semibold text-lg xl:text-2xl">{user.email}</h2>
                     </div>
                 </div>
-                {history &&
-                    <UserHistory history={history} />
-                }
+                {history && <UserHistory history={history} />}
             </main>
             <div className="absolute flex bottom-8 w-full items-center justify-center">
                 <button
                     className="font-bold bg-rose-500 text-white rounded-lg px-2 py-1 text-md 
                     hover:cursor-pointer hover:scale-95 transition-all duration-200 xl:text-xl"
                     onClick={() => auth.logout()}
-                >Cerrar Sesión</button>
+                >
+                    Cerrar Sesión
+                </button>
             </div>
         </div>
-    )
+    );
 }
 
 --- src/services/cleaningService.ts ---
 import { get, ref, set, update } from "firebase/database";
-import { db } from "../firebase/firebase";
+import { db } from "@/firebase/firebase";
 import { DB_PATHS } from "./paths";
 import {
   getPreciseDateString,
   getWeekBounds,
   getWeekOfYear,
-} from "../utils/date";
-import { getTaskForUser } from "../utils/taskRotation";
-import { CLEANER_LIST } from "../config/cleaners";
-import type { CleanerProfile } from "../types/domain";
+} from "@/utils/date";
+import { getTaskForUser } from "@/utils/taskRotation"; // Creado en Fase 1
+import { CLEANER_LIST } from "@/config/cleaners"; // Creado en Fase 1
+import type { CleanerProfile } from "@/types/domain";
 
 /**
  * Inicializa la semana en la DB si no existe.
@@ -1396,7 +1634,7 @@ export async function initializeCurrentWeekIfNeeded(): Promise<void> {
   const weekNumber = getWeekOfYear();
   const weekBounds = getWeekBounds();
 
-  // Construimos el estado inicial de cada usuario
+  // Construimos el estado inicial de cada usuario usando la configuración central
   const initialUsersState = CLEANER_LIST.reduce(
     (acc, cleaner) => {
       acc[cleaner.username] = {
@@ -1428,7 +1666,7 @@ export async function toggleTaskCompletion(
   cleaner: CleanerProfile,
   currentTaskName: string,
 ): Promise<boolean> {
-  // 1. Obtener estado actual
+  // 1. Obtener estado actual para invertirlo
   const userPath = DB_PATHS.weeklyUserStatus(cleaner.username);
   const userRef = ref(db, userPath);
   const snapshot = await get(userRef);
@@ -1440,7 +1678,7 @@ export async function toggleTaskCompletion(
   const newStatus = !data.done;
   const newDate = newStatus ? getPreciseDateString() : "not done";
 
-  // 2. Preparar actualizaciones atómicas
+  // 2. Preparar actualizaciones atómicas (Multi-path update)
   const updates: Record<string, any> = {};
 
   // Actualizar estado semanal
@@ -1448,133 +1686,134 @@ export async function toggleTaskCompletion(
   updates[`${userPath}/fecha`] = newDate;
 
   // Actualizar historial personal (users/{email}/history)
+  // Lógica: Si NO está hecho, se añade al "Muro de la vergüenza". Si se hace, se quita.
   const currentWeekId = getWeekBounds();
   const historyPath = DB_PATHS.userHistoryItem(cleaner.email, currentWeekId);
 
   if (newStatus === false) {
-    // Si desmarcó, añadimos al historial de "pendientes/fallos"
-    // (Siguiendo tu lógica original: addTaskNotDone)
+    // Si desmarcó (ahora es pendiente), añadimos al historial
     updates[historyPath] = currentTaskName;
   } else {
-    // Si marcó como hecho, borramos la "marca de vergüenza" del historial
-    // (Siguiendo tu lógica original: removeTaskNotDone)
-    // NOTA: Para borrar en un update múltiple se usa null
+    // Si marcó como hecho, borramos del historial
+    // En Firebase RTDB, setear a null borra la clave
     updates[historyPath] = null;
   }
 
+  // Ejecutamos todas las escrituras a la vez
   await update(ref(db), updates);
+
   return newStatus;
 }
 
 --- src/services/paths.ts ---
 import { getWeekBounds } from "@/utils/date";
+import { cleanEmail } from "@/utils/users";
 
 const ROOT_APP = "piso";
 const ROOT_USERS = "users";
 
-// Helper para sanitizar strings en claves de Firebase
+// Helper para sanitizar strings en claves de Firebase (evita repetir replaceAll)
 const sanitize = (str: string) => str.replaceAll("/", "_").replaceAll(".", "_");
 
 export const DB_PATHS = {
-    // Ruta: piso/12_05_2025-18_05_2025/
-    currentWeekRoot: () => {
-        const weekId = sanitize(getWeekBounds());
-        return `${ROOT_APP}/${weekId}`;
-    },
+  // Ruta Raíz de la semana actual: piso/12_05_2025-18_05_2025/
+  currentWeekRoot: () => {
+    const weekId = sanitize(getWeekBounds());
+    return `${ROOT_APP}/${weekId}`;
+  },
 
-    // Ruta: piso/12_05_2025-18_05_2025/usuarios/rubius
-    weeklyUserStatus: (username: string) => {
-        return `${DB_PATHS.currentWeekRoot()}/usuarios/${username}`;
-    },
+  // Ruta de un usuario específico en la semana: piso/.../usuarios/rubius
+  weeklyUserStatus: (username: string) => {
+    return `${DB_PATHS.currentWeekRoot()}/usuarios/${username}`;
+  },
 
-    // Ruta: users/rubius/history/12_05_2025-18_05_2025
-    userHistoryItem: (email: string, weekId: string) => {
-        return `${ROOT_USERS}/${cleanEmail(email)}/history/${sanitize(weekId)}`;
-    },
+  // Ruta específica de un item en el historial: users/rubius/history/12_05_2025-18_05_2025
+  userHistoryItem: (email: string, weekId: string) => {
+    return `${ROOT_USERS}/${cleanEmail(email)}/history/${sanitize(weekId)}`;
+  },
 
-    // Ruta: users/rubius/history
-    userHistoryRoot: (email: string) => {
-        return `${ROOT_USERS}/${cleanEmail(email)}/history`;
-    },
+  // Ruta raíz del historial de un usuario
+  userHistoryRoot: (email: string) => {
+    return `${ROOT_USERS}/${cleanEmail(email)}/history`;
+  },
 };
 
 --- src/types/User.ts ---
-import type { Color } from "../components/Icon"
+import type { Color } from "@/components/Icon";
 
 export type User = {
-    id: string,
-    name: string,
-    username: string,
-    email: string,
-    image: string,
-    color: Color
-    task?: string
-}
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    image: string;
+    color: Color;
+    task?: string;
+};
 
 const emails = {
     alvaro: import.meta.env.VITE_EMAIL_ALVARO,
     rubius: import.meta.env.VITE_EMAIL_RUBIUS,
     victor: import.meta.env.VITE_EMAIL_VICTOR,
     alex: import.meta.env.VITE_EMAIL_ALEX,
-}
-
+};
 
 export const baseUsers: Record<string, User> = {
-    "alvaro": {
+    alvaro: {
         id: "9d2fd7a7-2571-4f51-9794-4947de3a842d",
         name: "Álvaro",
         username: "alvaro",
         email: emails.alvaro,
         image: "./images/me.jpg",
         task: "",
-        color: "blue"
+        color: "blue",
     },
-    "rubius": {
+    rubius: {
         id: "53579f58-926b-4cdf-98bc-2956c1da412c",
         name: "Rubén",
         username: "rubius",
         email: emails.rubius,
         image: "./images/rubiu.jpg",
         task: "",
-        color: "yellow"
+        color: "yellow",
     },
-    "victor": {
+    victor: {
         id: "1a7c9359-3c3e-4e21-87ca-77890359cc1f",
         name: "Víctor",
         username: "victor",
         email: emails.victor,
         image: "./images/victor.jpg",
         task: "",
-        color: "pink"
+        color: "pink",
     },
-    "alex": {
+    alex: {
         id: "fa59951a-20c2-436e-bb70-cde97cdee399",
         name: "Álex",
         username: "alex",
         email: emails.alex,
         image: "./images/alex.jpg",
         task: "",
-        color: "green"
+        color: "green",
     },
-}
+};
 
 const usersByEmail: Record<string, User> = {
     [emails.alvaro]: baseUsers["alvaro"],
     [emails.rubius]: baseUsers["rubius"],
     [emails.victor]: baseUsers["victor"],
-    [emails.alex]: baseUsers["alex"]
-}
+    [emails.alex]: baseUsers["alex"],
+};
 
 export function getImageByEmail(email: string) {
-    return usersByEmail[email].image
+    return usersByEmail[email].image;
 }
 
 export function getNameByEmail(email: string) {
-    return usersByEmail[email].name
+    return usersByEmail[email].name;
 }
 
 export function getUserModelByEmail(email: string) {
-    return usersByEmail[email]
+    return usersByEmail[email];
 }
 
 --- src/types/domain.ts ---
@@ -1719,6 +1958,10 @@ export function cleanEmail(email: string) {
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
@@ -1756,6 +1999,10 @@ export function cleanEmail(email: string) {
 --- tsconfig.node.json ---
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2023",
     "lib": ["ES2023"],

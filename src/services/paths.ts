@@ -4,28 +4,28 @@ import { cleanEmail } from "@/utils/users";
 const ROOT_APP = "piso";
 const ROOT_USERS = "users";
 
-// Helper para sanitizar strings en claves de Firebase
+// Helper para sanitizar strings en claves de Firebase (evita repetir replaceAll)
 const sanitize = (str: string) => str.replaceAll("/", "_").replaceAll(".", "_");
 
 export const DB_PATHS = {
-    // Ruta: piso/12_05_2025-18_05_2025/
-    currentWeekRoot: () => {
-        const weekId = sanitize(getWeekBounds());
-        return `${ROOT_APP}/${weekId}`;
-    },
+  // Ruta Raíz de la semana actual: piso/12_05_2025-18_05_2025/
+  currentWeekRoot: () => {
+    const weekId = sanitize(getWeekBounds());
+    return `${ROOT_APP}/${weekId}`;
+  },
 
-    // Ruta: piso/12_05_2025-18_05_2025/usuarios/rubius
-    weeklyUserStatus: (username: string) => {
-        return `${DB_PATHS.currentWeekRoot()}/usuarios/${username}`;
-    },
+  // Ruta de un usuario específico en la semana: piso/.../usuarios/rubius
+  weeklyUserStatus: (username: string) => {
+    return `${DB_PATHS.currentWeekRoot()}/usuarios/${username}`;
+  },
 
-    // Ruta: users/rubius/history/12_05_2025-18_05_2025
-    userHistoryItem: (email: string, weekId: string) => {
-        return `${ROOT_USERS}/${cleanEmail(email)}/history/${sanitize(weekId)}`;
-    },
+  // Ruta específica de un item en el historial: users/rubius/history/12_05_2025-18_05_2025
+  userHistoryItem: (email: string, weekId: string) => {
+    return `${ROOT_USERS}/${cleanEmail(email)}/history/${sanitize(weekId)}`;
+  },
 
-    // Ruta: users/rubius/history
-    userHistoryRoot: (email: string) => {
-        return `${ROOT_USERS}/${cleanEmail(email)}/history`;
-    },
+  // Ruta raíz del historial de un usuario
+  userHistoryRoot: (email: string) => {
+    return `${ROOT_USERS}/${cleanEmail(email)}/history`;
+  },
 };
