@@ -7,76 +7,123 @@ interface BackgroundWrapperProps {
 export function BackgroundWrapper({ children }: BackgroundWrapperProps) {
     return (
         <div className="relative min-h-screen w-full overflow-hidden bg-background">
-            {/* CAPA 1: Fondo Oscuro Base (Zinc 950 ya definido en index.css) */}
-
-            {/* CAPA 2: Grid de Iconos en Movimiento (SVG Pattern) */}
-            <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none">
-                <div className="absolute inset-0 h-[200%] w-[200%] animate-scrolling-grid bg-[url('/grid-pattern.svg')]">
-                    {/* Usaremos un componente SVG inline para no depender de archivos externos si prefieres, 
-               o generamos el patrón aquí mismo. Mira abajo la implementación inline para máxima portabilidad. */}
+            {/* CAPA 1: Grid de Iconos Animado */}
+            {/* Usamos un contenedor más grande (200%) para que al moverse no se acabe el dibujo */}
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                <div className="absolute -top-[100px] -left-[100px] w-[calc(100%+200px)] h-[calc(100%+200px)] text-indigo-300 animate-scrolling-grid opacity-[0.08]">
                     <CleaningGridPattern />
                 </div>
             </div>
 
-            {/* CAPA 3: Gradiente Radial para dar profundidad (Vignette) */}
+            {/* CAPA 2: Vignette (Sombra en las esquinas para centrar la atención) */}
             <div className="absolute inset-0 z-0 bg-gradient-to-tr from-background via-transparent to-background/80 pointer-events-none" />
 
-            {/* CAPA 4: Contenido de la App */}
+            {/* CAPA 3: Contenido de la App */}
             <div className="relative z-10 flex flex-col min-h-screen">{children}</div>
         </div>
     );
 }
 
-// Componente interno que dibuja el patrón SVG repetitivo
+// Este componente dibuja el patrón repetitivo
 function CleaningGridPattern() {
-    // Definimos el tamaño del "azulejo" (tile) del patrón
-    const size = 60;
+    const patternSize = 100; // Tamaño del "azulejo" que se repite
 
     return (
-        <svg
-            className="absolute inset-0 h-full w-full"
-            xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <pattern
-                    id="cleaning-icons"
+                    id="cleaning-grid"
                     x="0"
                     y="0"
-                    width={size}
-                    height={size}
+                    width={patternSize}
+                    height={patternSize}
                     patternUnits="userSpaceOnUse"
-                    patternTransform="rotate(0)"
                 >
-                    {/* Iconos vectoriales simplificados (Paths de Lucide) */}
-                    {/* Color: Fill currentColor (blanco) para reaccionar a la opacidad del padre */}
+                    {/* DEFINICIÓN DEL GRID */}
+                    {/* Color: "currentColor" tomará el color del texto del padre (blanco por defecto en dark mode) */}
 
-                    {/* 1. Sparkles (Brillitos) - Top Left */}
-                    <path
-                        d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
-                        fill="currentColor"
-                        transform="translate(4, 4) scale(0.4)"
-                    />
+                    {/* trash */}
+                    <g transform="translate(10, 10) scale(0.5)">
+                        <path
+                            d="M47.5 0C46.398438 0 45.488281 0.6875 45.1875 1.6875L34.6875 29.1875L40.59375 31.3125L50 2.8125C50.101563 2.3125 50.011719 1.804688 49.8125 1.40625C49.511719 0.804688 49.007813 0.386719 48.40625 0.1875C48.105469 0.0859375 47.800781 0 47.5 0 Z M 16.09375 4.09375C12.992188 4.09375 10.199219 5.710938 8.5 8.3125C7.898438 8.3125 7.5 8.394531 7 8.59375L8.40625 10.1875C8.707031 10.085938 8.886719 10.101563 9.1875 10L9.6875 10L9.90625 9.59375C11.105469 7.394531 13.5 6 16 6C19.199219 6 22.011719 8.210938 22.8125 11.3125L23 12.09375L24 12.09375C25.898438 12.09375 27.40625 13.394531 27.90625 15.09375L30 15.09375C29.5 12.394531 27.292969 10.292969 24.59375 10.09375C23.292969 6.492188 19.992188 4.09375 16.09375 4.09375 Z M 2.1875 5.9375C1.9375 5.914063 1.65625 5.988281 1.40625 6.1875C0.90625 6.585938 0.886719 7.195313 1.1875 7.59375L3.9375 10.9375C2.980469 12.082031 2.304688 13.457031 2.09375 15L4.09375 15C4.269531 14.066406 4.660156 13.207031 5.1875 12.46875L14.125 23.3125C14.039063 23.523438 14 23.75 14 24C14 25.101563 14.898438 26 16 26C17.101563 26 18 25.101563 18 24C18 22.898438 17.101563 22 16 22C15.914063 22 15.832031 22.019531 15.75 22.03125L2.8125 6.3125C2.664063 6.113281 2.4375 5.960938 2.1875 5.9375 Z M 1 16C0.699219 16 0.386719 16.113281 0.1875 16.3125C-0.0117188 16.613281 0 16.886719 0 17.1875L5 49.1875C5.101563 49.585938 5.5 50 6 50L23 50C20.800781 48.300781 20 45.886719 20 43.6875C20 37.289063 25.707031 32.898438 29.90625 30.5L32 17.1875C32 16.886719 32.011719 16.605469 31.8125 16.40625C31.613281 16.105469 31.300781 16 31 16L13.3125 16L16.59375 20.09375C18.492188 20.394531 20 22.101563 20 24C20 26.199219 18.199219 28 16 28C13.800781 28 12 26.199219 12 24L12 23.90625L5.5 16 Z M 33.5 30.90625C30.199219 32.40625 22 36.886719 22 43.6875C22 43.875 22.015625 44.0625 22.03125 44.25C22.042969 44.382813 22.042969 44.523438 22.0625 44.65625C22.070313 44.714844 22.082031 44.785156 22.09375 44.84375C22.117188 44.964844 22.15625 45.097656 22.1875 45.21875C22.308594 45.703125 22.496094 46.167969 22.75 46.625C22.773438 46.667969 22.789063 46.710938 22.8125 46.75C22.890625 46.878906 22.972656 47 23.0625 47.125C23.125 47.210938 23.183594 47.292969 23.25 47.375C23.28125 47.414063 23.308594 47.460938 23.34375 47.5C23.472656 47.652344 23.628906 47.796875 23.78125 47.9375C25.03125 49.144531 26.992188 50 29.90625 50C28.804688 49.199219 27.898438 48.199219 27.5 47C26 43.300781 28.59375 39.195313 30.09375 37.59375C30.492188 37.195313 31.101563 37.195313 31.5 37.59375C31.898438 37.992188 31.898438 38.601563 31.5 39C30 40.5 28.210938 43.710938 29.3125 46.3125C30.011719 48.011719 31.792969 49.199219 34.59375 50L37 50C35.398438 49.101563 34.414063 48.085938 33.8125 47.1875C32.8125 45.585938 32.5 43.800781 33 42C33.199219 41.5 33.6875 41.210938 34.1875 41.3125C34.6875 41.414063 35.007813 42 34.90625 42.5C34.707031 43.199219 34.5 44.5 35.5 46C36.5 47.398438 38.8125 49.304688 44.3125 49.90625L49 49.90625C49.5 49.90625 49.898438 49.5 50 49C50 48.601563 49.6875 48.101563 49.1875 48C49.085938 48 42.40625 46.394531 39.90625 41.59375C38.605469 39.195313 39.90625 33.1875 39.90625 33.1875L39.8125 33.1875L33.8125 31Z"
+                            fill="currentColor"
+                        />
+                    </g>
 
-                    {/* 2. Feather/Duster (Plumero) - Bottom Right */}
-                    <path
-                        d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z M16 8L2 22"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                        transform="translate(30, 30) scale(0.5)"
-                    />
+                    {/* cleaning brush */}
+                    <g transform="translate(60, 10) scale(0.8)">
+                        <path
+                            d="M18,14h-4c-0.6,0-1-0.4-1-1V3c0-1.7,1.3-3,3-3s3,1.3,3,3v10C19,13.6,18.6,14,18,14z"
+                            fill="currentColor"
+                        />
+                        <path
+                            d="M24.7,20l-0.3-1.6C24,17,22.8,16,21.4,16H10.6c-1.4,0-2.6,1-2.9,2.4L7.3,20H24.7z"
+                            fill="currentColor"
+                        />
+                        <path
+                            d="M6.9,22L5,30.8c-0.1,0.3,0,0.6,0.2,0.8C5.4,31.9,5.7,32,6,32h4v-5c0-0.6,0.4-1,1-1s1,0.4,1,1v5h8v-3c0-0.6,0.4-1,1-1
+       s1,0.4,1,1v3h4c0.3,0,0.6-0.1,0.8-0.4c0.2-0.2,0.3-0.5,0.2-0.8L25.1,22H6.9z"
+                            fill="currentColor"
+                        />
+                    </g>
 
-                    {/* 3. Spray (Spray) - Top Right */}
-                    <path
-                        d="M3 3h.01 M7 5h.01 M11 7h.01 M3 7h.01 M7 3h.01 M11 3h.01 M15 5h4l-2 3h3l-8 13-2-6h-3l2-10"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                        transform="translate(32, 2) scale(0.5)"
-                    />
+                    {/* Spray bottle */}
+                    <g transform="translate(35, 60) scale(0.05)">
+                        <path
+                            d="M161.702,106.172l55.071-0.985l2.543,28.688h85.604l35.161-86.062h75.888V0c0,0-139.067,0-156.901,0
+        s-28.802,11.561-28.802,11.561s-54.784,53.914-70.495,68.008C133.206,103.39,161.702,106.172,161.702,106.172z"
+                            fill="currentColor"
+                        />
+                        <polygon
+                            points="425.532,42.438 454.219,34.664 454.219,16.142 425.532,5.977"
+                            fill="currentColor"
+                        />
+                        <rect
+                            x="205.594"
+                            y="143.438"
+                            width="114.75"
+                            height="38.25"
+                            fill="currentColor"
+                        />
+                        <path
+                            d="M368.157,424.336c0-87.258-47.144-107.979-52.23-112.761s-8.415-9.219-8.415-18.781s12.833-16.677,12.833-26.641
+        c0-17.528-12.307-20.311-12.307-28.678c0-14.353,10.729-13.904,10.729-25.857c0-16.381-10.7-20.368-10.7-20.368
+        s-79.397-0.593-97.231,0c-73.373,118.336-72.178,239.062-72.178,239.062s0,102.797,0,131.484s13.914,31.078,13.914,31.078
+        s189.547,0,203.815,0s11.771-19.125,11.771-19.125S368.157,542.672,368.157,424.336z"
+                            fill="currentColor"
+                        />
+                        <path
+                            d="M449.466,162.562c-43.48-44.771-44.159-105.188-44.159-105.188h-52.316c10.872,63.753,50.882,98.073,77.743,114.157
+        c13.971,8.367,18.656,7.153,20.885,4.293C457.279,168.539,449.466,162.562,449.466,162.562z"
+                            fill="currentColor"
+                        />
+                    </g>
+
+                    {/* Vacuum Cleaner */}
+                    <g transform="translate(80, 60) scale(0.05)">
+                        <path
+                            d="M256,387.178V499h68v-36.8C324,423.071,294,390.821,256,387.178z"
+                            fill="currentColor"
+                        />
+                        <rect x="389" y="295" width="23" height="46" fill="currentColor" />
+                        <path
+                            d="M412,445.121V361h-33.605c-5.502,0-9.395-4.853-9.395-10.355v-65.753c0-5.502,3.893-9.892,9.395-9.892 H412v-25h-33.972c-1.056,0-2.073,0-3.028,0h-33.309C294.361,250,256,288.74,256,336.33v30.841c49,3.698,88,44.906,88,95.028V499 h36.886c-1.171-4-1.942-7.891-1.942-12.173C378.943,466.492,393,449.571,412,445.121z"
+                            fill="currentColor"
+                        />
+                        <path
+                            d="M422.073,463.904c-12.721,0-23.071,10.35-23.071,23.072c0,5.209,1.738,10.019,4.661,13.885 c1.409,0.898,2.58,2.134,3.388,3.602c4.04,3.475,9.288,5.583,15.022,5.583c12.722,0,23.072-10.35,23.072-23.071 C445.145,474.254,434.795,463.904,422.073,463.904z"
+                            fill="currentColor"
+                        />
+                        <path
+                            d="M206.037,161.355c43.947,0,79.963-35.754,79.963-79.701v-9.963c0-27.467,22.533-49.813,50-49.813 c27.467,0,50,22.346,50,49.813V195h-10v35h36v-35h-7V71.692c0-38.454-31.047-69.738-69.5-69.738 c-38.453,0-69.5,31.285-69.5,69.738v9.963c0,32.96-27.077,59.776-60.037,59.776c-43.947,0-79.963,35.754-79.963,79.701v150.177 c-11,2.77-19,13.073-19,25.331V410H76.528C71.026,410,67,414.881,67,420.383v39.85c0,5.502,4.026,9.766,9.528,9.766h119.551 c5.502,0,9.921-4.264,9.921-9.766v-39.85c0-5.502-4.419-10.383-9.921-10.383H166v-13.361c0-12.258-8-22.561-20-25.331V221.131 C146,188.171,173.077,161.355,206.037,161.355z M126,410v-13.361c0-3.388,3.097-6.639,6.485-6.639h7.637 c3.388,0,5.878,3.252,5.878,6.639V410H126z"
+                            fill="currentColor"
+                        />
+                    </g>
                 </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#cleaning-icons)" />
+
+            {/* Rectángulo infinito que usa el patrón definido arriba */}
+            <rect width="100%" height="100%" fill="url(#cleaning-grid)" />
         </svg>
     );
 }
