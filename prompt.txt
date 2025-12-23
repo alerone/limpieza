@@ -1,1 +1,15 @@
-Me gustaría comentar algo del fondo, me gusta ese toque modo dark pero quiero que haya un grid de muchos iconos de limpieza moviendose en diagonal hacia arriba derecha (un grid grid, no iconos aleatoriamente posicionados) aunque eso ya para cuando toque hacerlo pero para que cambies el plan de acción general de los cambios de diseño (en su debido momento se hará la animación y el background, por ahora solo cambia el plan de acción que habías confeccionado para que en vez de ser ese fondo con brillos moviendose sea este que te comento)
+Bien, ahora quiero añadir nuevas tareas opcionales. Este cambio es más complejo. Estas tareas opcionales darán puntos. hay que crear la página de las tareas opcionales, donde aparecerá la lista de tareas y si alguien ha hecho alguna de las tareas propuestas. Habrán tareas que son diarias o tareas que son semanales y cada tarea da más o menos puntos. Por ahora he pensado tareas como: 
+
+Recoger utensilios secando enteramente (1 al día) +5 puntos
+Limpiar vitrocerámica (1 al día) +3 puntos
+Barrer/Fregar suelo cocina (si no le toca cocina) (2 a la semana) +10 puntos
+Barrer/Fregar suelo pasillo (si no le toca pasillo) (1 a la semana) +10 puntos
+Barrer/Fregar suelo salón (si no le toca salón) (1 a la semana) +10 puntos
+Limpiar toda la casa (1 a la semana) +35 puntos
+Limpiar mesa del salón (1 al día) +3 puntos
+Fregar utensilios usados por alguien desconocido (1 al dia) +3 puntos
+
+En la pestaña de tareas opcionales aparecerán las tareas que hay activas y si alguien la ha hecho ya. Estos puntos serán almacenados
+por usuario. Además, cada vez que un usuario hace su tarea obligatoria, se le sumarán 20 puntos. Si no ha limpiado dicha semana su tarea obligatoria, se le restarán 10 puntos.
+
+Luego de realizar estos cambios, añadiremos una pestaña en el Ranking que permite cambiar entre tareas obligatorias y puntos para mostrar información de quien tiene más puntos o quien ha hecho más tareas obligatorias

@@ -6,6 +6,8 @@ import LoginPage from "./pages/Login";
 import { ProfilePage } from "./pages/Profile";
 import { useTitle } from "./hooks/useTitle";
 import { MainLayout, AuthLayout } from "./components/layout/MainLayout";
+import RankingPage from "./pages/Ranking";
+import OptionalTasksPage from "./pages/OptionalTasks";
 
 function App() {
     useTitle("CleanApp - Tareas");
@@ -38,6 +40,27 @@ function App() {
                             <ProtectedRoute>
                                 <MainLayout>
                                     <ProfilePage />
+                                </MainLayout>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="ranking"
+                        element={
+                            <ProtectedRoute>
+                                <MainLayout>
+                                    <RankingPage />
+                                </MainLayout>
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="tasks"
+                        element={
+                            <ProtectedRoute>
+                                <MainLayout>
+                                    <OptionalTasksPage />
                                 </MainLayout>
                             </ProtectedRoute>
                         }
