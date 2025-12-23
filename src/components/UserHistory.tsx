@@ -1,41 +1,71 @@
 import type { HistoryItem } from "@/hooks/useHistory";
+import { AlertTriangle, CalendarOff, CheckCircle2 } from "lucide-react";
 
 export function UserHistory({ history }: { history: HistoryItem[] }) {
-    return (
-        <div className="bg-slate-50 p-4 xl:p-8 flex flex-col text-gray-800 rounded-xl  max-h-[36rem] xl:max-h-[24rem] xl:m-auto">
-            <h2 className="exo2-font text-center  xl:text-5xl text-2xl font-semibold">
-                Estadísticas de limpieza
-            </h2>
-            {history && history.length > 0 && (
-                <>
-                    <h2 className="xl:text-2xl text-1xl mt-12 lato-font font-normal">
-                        Semanas sin limpiar: <span id="week-count">{history.length}</span>
-                    </h2>
-                    <div className="mt-6 overflow-y-auto bg-amber-200 p-3 xl:p-2 rounded-xl gap-1 items-center justify-center shadow-md flex flex-col">
-                        {history.map((item: HistoryItem) => (
-                            <div
-                                key={item.week}
-                                className="flex gap-4 bg-rose-500 text-white shadow-md rounded-xl px-4 py-1"
-                            >
-                                <span className="font-bold text-md xl:text-xl">
-                                    {item.week}
-                                </span>
-                                <span
-                                    key={item.week}
-                                    className="font-semibold text-md xl:text-xl border-l-3 pl-2  border-white"
-                                >
-                                    {item.task}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </>
-            )}
-            {history && history.length === 0 && (
-                <h2 className="text-emerald-400 font-bold text-md xl:text-xl text-center mt-4">
-                    Todo limpio por aquí!
-                </h2>
-            )}
+  const hasDebts = history.length > 0;
+
+  return (
+    <div className="w-full max-w-2xl mx-auto animate-in slide-in-from-bottom-5 duration-700 delay-100">
+      {/* Cabecera de la Sección */}
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+          {hasDebts ? (
+            <>
+              <AlertTriangle className="text-status-pending" />
+              <span>Historial de Pendientes</span>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="text-status-success" />
+              <span>Historial Impecable</span>
+            </>
+          )}
+        </h3>
+        <p className="text-sm text-gray-400 mt-1">
+          {hasDebts
+            ? `Tienes ${history.length} semanas marcadas como no completadas.`
+            : "¡Todo al día! No debes ninguna tarea."}
+        </p>
+      </div>
+
+      {/* Lista de Deudas (Glassmorphism) */}
+      {hasDebts ? (
+        <div className="flex flex-col gap-3">
+          {history.map((item, index) => (
+            <div
+              key={item.week}
+              className="group flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-rose-500/20 rounded-full text-rose-400 group-hover:scale-110 transition-transform">
+                  <CalendarOff size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-bold text-gray-200">{item.task}</span>
+                  <span className="text-xs text-gray-500 uppercase tracking-wider">
+                    Semana {item.week}
+                  </span>
+                </div>
+              </div>
+
+              {/* Badge visual */}
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                No realizada
+              </span>
+            </div>
+          ))}
         </div>
-    );
+      ) : (
+        // Estado Vacío (Empty State)
+        <div className="flex flex-col items-center justify-center py-12 bg-white/5 border border-white/10 border-dashed rounded-2xl">
+          <div className="w-16 h-16 bg-gradient-to-tr from-emerald-500/20 to-transparent rounded-full flex items-center justify-center mb-4">
+            <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+          </div>
+          <p className="text-gray-300 font-medium">Estás libre de pecado</p>
+          <p className="text-xs text-gray-500">Sigue así, máquina.</p>
+        </div>
+      )}
+    </div>
+  );
 }
