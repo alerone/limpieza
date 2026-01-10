@@ -11,10 +11,10 @@ export function useWeekTracker() {
                 if (currentWeek != week) {
                     setWeek(currentWeek);
                 }
-                return () => clearInterval(interval);
             },
             5 * 60 * 1000,
         );
+        return () => clearInterval(interval);
     }, [week]);
 
     return week;
