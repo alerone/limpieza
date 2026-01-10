@@ -11,7 +11,6 @@ import {
     onAuthStateChanged,
     type User,
 } from "firebase/auth";
-import { initializeCurrentWeekIfNeeded } from "@/services/cleaningService";
 
 const AuthContext = createContext(null as any);
 
@@ -36,7 +35,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             // Then set up auth state listener
             unsubscribe = onAuthStateChanged(authInstance, async (user) => {
-                await initializeCurrentWeekIfNeeded();
                 setUser(user);
                 setInitializing(false);
             });

@@ -1,8 +1,15 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { BackgroundWrapper } from "./BackgroundWrapper";
 import { Navbar } from "./Navbar";
+import { useWeekTracker } from "@/hooks/useWeekTracker";
+import { initializeCurrentWeekIfNeeded } from "@/services/cleaningService";
 
 export function MainLayout({ children }: { children: ReactNode }) {
+    const currentRealWeek = useWeekTracker();
+    useEffect(() => {
+        initializeCurrentWeekIfNeeded().catch(console.error);
+    }, [currentRealWeek]);
+
     return (
         <BackgroundWrapper>
             <Navbar />
