@@ -1,13 +1,40 @@
-const TASKS_POOL = ["Cocina", "Cocina", "Salón", "Pasillo"];
+const PAIRS = [
+    { users: ["alvaro", "rubius"], name: "Pair 1" },
+    { users: ["alex", "victor"], name: "Pair 2" },
+];
+const PAIR_TASKS = ["Cocina", "Salón/Pasillo"];
 
-/**
- * Calcula qué tareas tocan en una semana específica basándose en la rotación.
- * Función pura: Inputs -> Outputs. Sin hooks.
- */
-export function getTasksForWeek(weekNumber: number): string[] {
-  const shift = weekNumber % 4;
-  // Rotación simple del array
-  return [...TASKS_POOL.slice(4 - shift), ...TASKS_POOL.slice(0, 4 - shift)];
+export function getTasksRotation(weekNumber: number): Record<string, string> {
+    const pairShift = weekNumber % 2;
+
+    const pairAssignments = [
+        ...PAIR_TASKS.slice(2 - pairShift),
+        ...PAIR_TASKS.slice(0, 2 - pairShift),
+    ];
+
+    const assignments: Record<string, string> = {};
+
+    PAIRS.forEach((pair, pairIndex) => {
+        const task = pairAssignments[pairIndex];
+
+        if (task === "Cocina") {
+            pair.users.forEach((user) => {
+                assignments[user] = "Cocina";
+            });
+        } else {
+            const internalSwap = Math.floor((weekNumber - 1) / 2) % 2;
+
+            if (internalSwap === 0) {
+                assignments[pair.users[0]] = "Salón";
+                assignments[pair.users[1]] = "Pasillo";
+            } else {
+                assignments[pair.users[0]] = "Pasillo";
+                assignments[pair.users[1]] = "Salón";
+            }
+        }
+    });
+
+    return assignments;
 }
 
 /**
@@ -15,17 +42,6 @@ export function getTasksForWeek(weekNumber: number): string[] {
  * Asumimos el orden: Rubius, Alvaro, Victor, Alex
  */
 export function getTaskForUser(username: string, weekNumber: number): string {
-  const tasks = getTasksForWeek(weekNumber);
-  switch (username) {
-    case "rubius":
-      return tasks[0];
-    case "alvaro":
-      return tasks[1];
-    case "victor":
-      return tasks[2];
-    case "alex":
-      return tasks[3];
-    default:
-      return "Sin tarea";
-  }
+    const tasks = getTasksRotation(weekNumber);
+    return tasks[username];
 }
